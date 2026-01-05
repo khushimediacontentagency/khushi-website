@@ -1,6 +1,7 @@
 import Header from './components/header';
 import Brands from './components/brands';
 import AboutMe from './components/aboutme';
+import Portfolio from './components/portfolio';
 
 export default function Home() {
   return (
@@ -19,6 +20,7 @@ export default function Home() {
       <main className="grow container mx-auto px-4 py-8">
         <Brands />
         <AboutMe />
+        <Portfolio />
       </main>
     </div>
   );
