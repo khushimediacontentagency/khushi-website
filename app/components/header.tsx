@@ -6,13 +6,13 @@ export default function Header() {
         alt="Khushi's Logo" 
         className="h-12 w-auto"
       />
-      <nav>
-        <ul className="flex space-x-8 text-lg">
-          <li><a href="#home" className="hover:underline">Home</a></li>
-          <li><a href="#collaborations" className="hover:underline">Collaborations</a></li>
-          <li><a href="#about-me" className="hover:underline">About Me</a></li>
-          <li><a href="#portfolio" className="hover:underline">Portfolio</a></li>
-          <li><a href="#signup" className="hover:underline">Signup</a></li>
+      <nav className="ml-auto">
+        <ul className="flex space-x-4 text-lg">
+          <li><a href="#home" className="inline-block hover:scale-105 hover:bg-white/20 transition px-4 py-2 rounded">Home</a></li>
+          <li><a href="#brands" className="inline-block hover:scale-105 hover:bg-white/20 transition px-4 py-2 rounded">Brands</a></li>
+          <li><a href="#about-me" className="inline-block hover:scale-105 hover:bg-white/20 transition px-4 py-2 rounded">About Me</a></li>
+          <li><a href="#portfolio" className="inline-block hover:scale-105 hover:bg-white/20 transition px-4 py-2 rounded">Portfolio</a></li>
+          <li><a href="#signup" className="inline-block hover:scale-105 hover:bg-white/20 transition px-4 py-2 rounded">Signup</a></li>
         </ul>
       </nav>
     </header>

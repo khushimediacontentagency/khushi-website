@@ -1,16 +1,22 @@
 import Header from './components/header';
+import Brands from './components/brands';
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-amber-50 text-gray-900 flex flex-col">
+    <div className="min-h-screen ffffff text-gray-900 flex flex-col">
       <Header />
+      <section className="w-full">
+        <video
+          src="/video_placeholder.mp4"
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="w-full object-cover"
+        />
+      </section>
       <main className="grow container mx-auto px-4 py-8">
-        <p className="text-lg mb-4">
-          Hello world!
-        </p>
-        <ul className="list-disc pl-5">
-          <li>coffee</li>
-        </ul>
+        <Brands />
       </main>
     </div>
   );
