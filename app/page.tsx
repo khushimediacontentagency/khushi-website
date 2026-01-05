@@ -1,9 +1,10 @@
 import Header from './components/header';
 import Brands from './components/brands';
+import AboutMe from './components/aboutme';
 
 export default function Home() {
   return (
-    <div className="min-h-screen ffffff text-gray-900 flex flex-col">
+    <div className="min-h-screen bg-white text-gray-900 flex flex-col">
       <Header />
       <section className="w-full">
         <video
@@ -17,6 +18,7 @@ export default function Home() {
       </section>
       <main className="grow container mx-auto px-4 py-8">
         <Brands />
+        <AboutMe />
       </main>
     </div>
   );
