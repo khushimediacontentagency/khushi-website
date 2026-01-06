@@ -185,7 +185,7 @@ function ContactFormInner() {
 
             <div>
               <label className={labelStyle}>Event Details</label>
-              <textarea {...regService('details', { required: "Please provide event details" })} className={`${inputStyle(!!servErrors.details)} min-h-[150px]`} placeholder="Tell us more about your event..."></textarea>
+              <textarea {...regService('details', { required: "Please provide event details" })} className={`${inputStyle(!!servErrors.details)} min-h-37.5`} placeholder="Tell us more about your event..."></textarea>
               {servErrors.details && <p className="text-[#ff1267] text-xs mt-1">{servErrors.details.message as string}</p>}
             </div>
 
@@ -233,7 +233,7 @@ function ContactFormInner() {
 
             <div>
               <label className={labelStyle}>Creative Bio / Details</label>
-              <textarea {...regCreator('details', { required: "Bio is required" })} className={`${inputStyle(!!creatErrors.details)} min-h-[120px]`} placeholder="Tell us about your work and creative journey..."></textarea>
+              <textarea {...regCreator('details', { required: "Bio is required" })} className={`${inputStyle(!!creatErrors.details)} min-h-30`} placeholder="Tell us about your work and creative journey..."></textarea>
               {creatErrors.details && <p className="text-[#ff1267] text-xs mt-1">{creatErrors.details.message as string}</p>}
             </div>
 

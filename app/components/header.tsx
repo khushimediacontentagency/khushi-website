@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { FaInstagram } from 'react-icons/fa';
 import { SiTiktok } from 'react-icons/si';
 
@@ -47,11 +48,13 @@ export default function Header() {
       }}
     >
       <div className="flex items-center space-x-4">
-        <img
-          src="/logo.png"
-          alt="Khushi's Logo"
-          className={`h-12 w-auto transition-all duration-300 ${textColor === 'black' ? 'brightness-0' : 'brightness-0 invert'}`}
-        />
+        <Link href="/" className="transition-transform duration-300 hover:scale-105">
+          <img
+            src="/logo.png"
+            alt="Khushi's Logo"
+            className={`h-12 w-auto transition-all duration-300 ${textColor === 'black' ? 'brightness-0' : 'brightness-0 invert'}`}
+          />
+        </Link>
         <a href="https://www.instagram.com/khushimedia/" target="_blank" rel="noopener noreferrer" className="inline-block hover:scale-110 hover:text-[#ff1267] transition p-1">
           <FaInstagram className="text-2xl" />
         </a>
@@ -60,7 +63,7 @@ export default function Header() {
         </a>
       </div>
       <nav className="ml-auto">
-        <ul className="flex space-x-1 text-base uppercase font-[var(--font-oswald)] tracking-wide">
+        <ul className="flex space-x-1 text-base uppercase font-(--font-oswald) tracking-wide">
           <li><a href="/#home" className={`inline-block transition-all duration-300 ${hoverBg} hover:text-[#ff1267] px-4 py-2 rounded-full`}>Home</a></li>
           <li><a href="/#brands" className={`inline-block transition-all duration-300 ${hoverBg} hover:text-[#ff1267] px-4 py-2 rounded-full`}>Brands</a></li>
           <li><a href="/#about-me" className={`inline-block transition-all duration-300 ${hoverBg} hover:text-[#ff1267] px-4 py-2 rounded-full`}>About Me</a></li>
