@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { useForm, useFieldArray, useWatch } from 'react-hook-form';
-import { FaPlus, FaTrash, FaCheckCircle, FaSpinner, FaExclamationTriangle, FaChevronDown } from 'react-icons/fa';
+import { useState, useEffect, useRef, Suspense } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { useForm, useFieldArray } from 'react-hook-form';
+import { FaPlus, FaTrash, FaCheckCircle, FaSpinner, FaExclamationTriangle, FaChevronDown, FaArrowLeft } from 'react-icons/fa';
 import { CONFIG } from '../utils/config';
 
 function CustomSelect({ options, label, value, onChange, placeholder, error }: any) {
@@ -54,12 +54,15 @@ function CustomSelect({ options, label, value, onChange, placeholder, error }: a
   );
 }
 
-export default function ContactForms() {
+function ContactFormInner() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<'service' | 'creator'>('service');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error' | 'rate-limited'>('idle');
   const [lastSubmitTime, setLastSubmitTime] = useState<number | null>(null);
+
+  const hideTabs = searchParams.get('hideTabs') === 'true';
 
   useEffect(() => {
     const tabParam = searchParams.get('tab');
@@ -110,6 +113,15 @@ export default function ContactForms() {
 
   return (
     <div className="max-w-4xl mx-auto w-full">
+      <div className="mb-6 flex justify-start">
+        <button 
+          onClick={() => router.back()}
+          className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors uppercase text-xs font-bold tracking-widest"
+        >
+          <FaArrowLeft /> Back
+        </button>
+      </div>
+
       {submitStatus === 'rate-limited' && (
         <div className="mb-4 p-4 bg-amber-500/10 border border-amber-500/50 rounded-lg flex items-center gap-3 text-amber-500 animate-pulse">
           <FaExclamationTriangle />
@@ -117,12 +129,14 @@ export default function ContactForms() {
         </div>
       )}
 
-      <div className="flex rounded-t-2xl overflow-hidden border border-white/10 border-b-0">
-        <button onClick={() => setActiveTab('service')} className={tabBtnStyle(activeTab === 'service')}>Book Services</button>
-        <button onClick={() => setActiveTab('creator')} className={tabBtnStyle(activeTab === 'creator')}>Become a Creator</button>
-      </div>
+      {!hideTabs && (
+        <div className="flex rounded-t-2xl overflow-hidden border border-white/10 border-b-0">
+          <button onClick={() => setActiveTab('service')} className={tabBtnStyle(activeTab === 'service')}>Book Services</button>
+          <button onClick={() => setActiveTab('creator')} className={tabBtnStyle(activeTab === 'creator')}>Become a Creator</button>
+        </div>
+      )}
 
-      <div className="bg-neutral-900 border border-white/10 rounded-b-2xl p-6 md:p-10 shadow-2xl relative">
+      <div className={`bg-neutral-900 border border-white/10 rounded-b-2xl p-6 md:p-10 shadow-2xl relative ${hideTabs ? 'rounded-t-2xl' : ''}`}>
         {submitStatus === 'success' && (
           <div className="absolute inset-0 z-50 bg-neutral-900/95 flex flex-col items-center justify-center text-center p-6 animate-in fade-in duration-300">
             <FaCheckCircle className="text-6xl text-[#ff1267] mb-4" />
@@ -202,7 +216,7 @@ export default function ContactForms() {
               </div>
               <div>
                 <label className={labelStyle}>Phone</label>
-                <input {...regCreator('phone', { required: "Phone number is required" })} className={inputStyle(!!creatErrors.phone)} placeholder="079..." />
+                <input {...regCreator('phone', { required: "Phone number is required" })} className={inputStyle(!!creatErrors.phone)} placeholder="07941344450" />
                 {creatErrors.phone && <p className="text-[#ff1267] text-xs mt-1">{creatErrors.phone.message as string}</p>}
               </div>
             </div>
@@ -275,5 +289,13 @@ function SocialRow({ index, register, remove, showDelete, setVal, watch, errors 
         </div>
       )}
     </div>
+  );
+}
+
+export default function ContactForms() {
+  return (
+    <Suspense fallback={<div className="flex justify-center py-20"><FaSpinner className="animate-spin text-[#ff1267] text-4xl" /></div>}>
+      <ContactFormInner />
+    </Suspense>
   );
 }

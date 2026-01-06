@@ -20,7 +20,7 @@ export default function WorkWithUs() {
           </div>
         </Link>
 
-        <Link href="/forms?tab=creator" className={cardStyle}>
+        <Link href="/forms?tab=creator&hideTabs=true" className={cardStyle}>
           <div>
             <h3 className="text-3xl font-bold mb-6 text-white group-hover:text-[#ff1267] transition-colors">Become a Creator</h3>
             <p className="text-lg text-gray-400 leading-relaxed">

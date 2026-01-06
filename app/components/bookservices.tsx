@@ -1,14 +1,14 @@
 import Link from 'next/link';
 
 export default function BookServices() {
-  const cardStyle = "group relative overflow-hidden rounded-2xl border border-white/10 bg-neutral-900 p-8 transition-all duration-500 hover:border-[#ff1267]/50 hover:shadow-2xl hover:shadow-[#ff1267]/10 md:w-1/2 block"; // added 'block' and removed 'cursor' logic since Link handles it
+  const cardStyle = "group relative overflow-hidden rounded-2xl border border-white/10 bg-neutral-900 p-8 transition-all duration-500 hover:border-[#ff1267]/50 hover:shadow-2xl hover:shadow-[#ff1267]/10 md:w-1/2 block";
 
   return (
     <section id="book-services" className="pb-12">
       <h2 className="text-4xl font-bold mb-12 text-center tracking-tight text-white">Book Our Services</h2>
       <div className="flex flex-col md:flex-row justify-center gap-8 max-w-5xl mx-auto">
         
-        <Link href="/forms?tab=service" className={cardStyle}>
+        <Link href="/forms?tab=service&hideTabs=true" className={cardStyle}>
           <div className="relative z-10">
             <div className="mb-6 inline-block rounded-lg bg-white/5 p-3 group-hover:bg-[#ff1267]/10 transition-colors">
               <span className="text-sm font-bold uppercase tracking-widest text-[#ff1267]">Commercial</span>
@@ -23,7 +23,7 @@ export default function BookServices() {
           </div>
         </Link>
 
-        <Link href="/forms?tab=service" className={cardStyle}>
+        <Link href="/forms?tab=service&hideTabs=true" className={cardStyle}>
           <div className="relative z-10">
             <div className="mb-6 inline-block rounded-lg bg-white/5 p-3 group-hover:bg-[#ff1267]/10 transition-colors">
               <span className="text-sm font-bold uppercase tracking-widest text-[#ff1267]">Personal</span>
