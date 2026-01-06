@@ -57,12 +57,12 @@ export default function Header() {
         </a>
       </div>
       <nav className="ml-auto">
-        <ul className="flex space-x-1 text-base uppercase font-[var(--font-oswald)]">
+        <ul className="flex space-x-1 text-base uppercase font-(--font-oswald)">
           <li><a href="#home" className={`inline-block hover:scale-105 ${hoverBg} hover:text-[#ff1267] transition px-3 py-2 rounded`}>Home</a></li>
           <li><a href="#brands" className={`inline-block hover:scale-105 ${hoverBg} hover:text-[#ff1267] transition px-3 py-2 rounded`}>Brands</a></li>
           <li><a href="#about-me" className={`inline-block hover:scale-105 ${hoverBg} hover:text-[#ff1267] transition px-3 py-2 rounded`}>About Me</a></li>
           <li><a href="#portfolio" className={`inline-block hover:scale-105 ${hoverBg} hover:text-[#ff1267] transition px-3 py-2 rounded`}>Portfolio</a></li>
-          <li><a href="#signup" className={`inline-block hover:scale-105 ${hoverBg} hover:text-[#ff1267] transition px-3 py-2 rounded`}>Signup</a></li>
+          <li><a href="#work-with-us" className={`inline-block hover:scale-105 ${hoverBg} hover:text-[#ff1267] transition px-3 py-2 rounded`}>Work With Us</a></li>
         </ul>
       </nav>
     </header>
