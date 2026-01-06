@@ -2,12 +2,11 @@ import Header from './components/header';
 import Brands from './components/brands';
 import AboutMe from './components/aboutme';
 import Portfolio from './components/portfolio';
-
 export default function Home() {
   return (
     <div className="min-h-screen bg-white text-gray-900 flex flex-col">
       <Header />
-      <section className="w-full">
+      <section id="home" className="w-full">
         <video
           src="/video_placeholder.mp4"
           autoPlay
