@@ -37,7 +37,7 @@ export default function Header() {
     };
 
     window.addEventListener('scroll', handleScroll);
-    handleScroll(); // Initial call
+    handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -73,7 +73,7 @@ export default function Header() {
           <li><a href="/#home" className={`inline-block transition-all duration-300 ${hoverBg} hover:text-[#ff1267] px-4 py-2 rounded-full`}>Home</a></li>
           <li><a href="/#brands" className={`inline-block transition-all duration-300 ${hoverBg} hover:text-[#ff1267] px-4 py-2 rounded-full`}>Brands</a></li>
           <li><a href="/#about-me" className={`inline-block transition-all duration-300 ${hoverBg} hover:text-[#ff1267] px-4 py-2 rounded-full`}>About Me</a></li>
-          <li><a href="/#portfolio" className={`inline-block transition-all duration-300 ${hoverBg} hover:text-[#ff1267] px-4 py-2 rounded-full`}>Portfolio</a></li>
+          <li><a href="/portfolio" className={`inline-block transition-all duration-300 ${hoverBg} hover:text-[#ff1267] px-4 py-2 rounded-full`}>Portfolio</a></li>
           <li><a href="/workwithus" className={`inline-block transition-all duration-300 ${hoverBg} hover:text-[#ff1267] px-4 py-2 rounded-full`}>Work With Us</a></li>
         </ul>
       </nav>
