@@ -10,15 +10,8 @@ const CACHE_DURATION = 15 * 60 * 1000;
 
 async function fetchImagesFromFolder(folder: string) {
   const now = Date.now();
-
   if (imageCache[folder] && (now - imageCache[folder].timestamp < CACHE_DURATION)) {
-    console.log(`Rate Limiter: Serving '${folder}' from internal cache.`);
     return imageCache[folder].data;
-  }
-
-  if (!CONFIG.CLOUDINARY_API_KEY || !CONFIG.CLOUDINARY_API_SECRET || !CONFIG.CLOUDINARY_CLOUD_NAME) {
-    console.error("Missing Cloudinary Credentials");
-    return [];
   }
 
   cloudinary.config({
@@ -27,8 +20,6 @@ async function fetchImagesFromFolder(folder: string) {
     api_secret: CONFIG.CLOUDINARY_API_SECRET,
   });
 
-  console.log(`API Request: Fetching '${folder}' from Cloudinary...`);
-
   try {
     const result = await cloudinary.search
       .expression(`resource_type:image AND folder="${folder}"`)
@@ -36,14 +27,8 @@ async function fetchImagesFromFolder(folder: string) {
       .max_results(500)
       .execute();
 
-    imageCache[folder] = {
-      data: result.resources,
-      timestamp: now,
-    };
-
-    console.log(`Success: Found ${result.resources.length} images in '${folder}'`);
+    imageCache[folder] = { data: result.resources, timestamp: now };
     return result.resources;
-    
   } catch (error) {
     console.error(`Error fetching images from ${folder}:`, error);
     return [];
@@ -59,11 +44,12 @@ export default async function PortfolioPage() {
     'Wedding Content'
   ];
   
-  const imageGroups: Record<string, { public_id: string; secure_url: string }[]> = {};
+  const imageGroups: Record<string, any[]> = {};
 
-  for (const folder of folders) {
-    imageGroups[folder] = await fetchImagesFromFolder(folder);
-  }
+  const results = await Promise.all(folders.map(f => fetchImagesFromFolder(f)));
+  folders.forEach((folder, index) => {
+    imageGroups[folder] = results[index];
+  });
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col">
@@ -71,7 +57,7 @@ export default async function PortfolioPage() {
       <main className="grow container mx-auto px-4 pt-32 pb-12">
         <Portfolio imageGroups={imageGroups} />
       </main>
-      <footer className="py-8 text-center text-gray-600 text-sm">
+      <footer className="py-8 text-center text-gray-800 text-sm">
         &copy; {new Date().getFullYear()} KhushiMedia. All rights reserved.
       </footer>
     </div>
