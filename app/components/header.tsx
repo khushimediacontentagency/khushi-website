@@ -50,7 +50,7 @@ export default function Header() {
       <div className="flex items-center space-x-4">
         <Link href="/" className="transition-transform duration-300 hover:scale-105">
           <img
-            src="/logo.png"
+            src="/logos/logo.png"
             alt="Khushi's Logo"
             className={`h-12 w-auto transition-all duration-300 ${textColor === 'black' ? 'brightness-0' : 'brightness-0 invert'}`}
           />
