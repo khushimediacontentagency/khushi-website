@@ -1,43 +1,49 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { FaInstagram } from 'react-icons/fa';
 import { SiTiktok } from 'react-icons/si';
 
 export default function Header() {
   const [textColor, setTextColor] = useState('white');
-  const [hoverBg, setHoverBg] = useState('hover:bg-white/10');
+  const [hoverBg, setHoverBg] = useState('hover:bg-white/20');
   const [isScrolled, setIsScrolled] = useState(false);
+  const headerRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
       const scrollY = window.scrollY;
-      const videoElement = document.querySelector('video');
-      
       setIsScrolled(scrollY > 10);
 
-      if (videoElement) {
-        const videoHeight = videoElement.offsetHeight;
-        if (scrollY < videoHeight - 100) {
-          setTextColor('white');
-          setHoverBg('hover:bg-white/10');
-        } else {
-          setTextColor('black');
-          setHoverBg('hover:bg-black/5');
+      const headerHeight = headerRef.current?.offsetHeight || 80;
+      const sections = document.querySelectorAll('section');
+      let newTextColor = 'white';
+      let newHoverBg = 'hover:bg-white/20';
+
+      for (const section of Array.from(sections)) {
+        const rect = section.getBoundingClientRect();
+        if (rect.top <= headerHeight && rect.bottom > headerHeight) {
+          const classes = section.className;
+          if (classes.includes('bg-white')) {
+            newTextColor = 'black';
+            newHoverBg = 'hover:bg-black/10';
+          }
+          break;
         }
-      } else {
-        setTextColor('white');
-        setHoverBg('hover:bg-white/10');
       }
+
+      setTextColor(newTextColor);
+      setHoverBg(newHoverBg);
     };
 
     window.addEventListener('scroll', handleScroll);
-    handleScroll();
+    handleScroll(); // Initial call
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   return (
     <header
+      ref={headerRef}
       className={`
         flex justify-between items-center pl-12 pr-6 fixed top-0 left-0 w-full z-50
         py-6 bg-transparent transition-all duration-500
