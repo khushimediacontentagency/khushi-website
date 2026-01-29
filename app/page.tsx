@@ -1,6 +1,7 @@
 import Header from './components/header';
 import Brands from './components/brands';
 import AboutMe from './components/aboutme';
+
 export default function Home() {
   return (
     <div className="min-h-screen bg-black white flex flex-col">
@@ -15,7 +16,7 @@ export default function Home() {
           className="w-full object-cover"
         />
       </section>
-      <main className="grow container mx-auto px-4 py-8">
+      <main className="grow">
         <Brands />
         <AboutMe /> 
       </main>
