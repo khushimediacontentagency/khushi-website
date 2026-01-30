@@ -11,7 +11,8 @@ export default function Header() {
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
+      setIsScrolled(window.scrollY > 10);
+      
       const headerHeight = 64; 
       const sections = document.querySelectorAll('section[data-theme]');
       let activeTheme = 'dark';
@@ -51,13 +52,13 @@ export default function Header() {
       <header
         className={`
           fixed top-0 left-0 w-full z-50 flex items-center justify-between
-          px-6 md:px-12 py-4 transition-all duration-300
+          px-6 md:px-12 py-4 transition-all duration-500
           ${
             isMenuOpen 
               ? 'bg-transparent shadow-none' 
-              : isScrolled 
-                ? (isLightMode ? 'bg-white/60 backdrop-blur-lg shadow-sm' : 'bg-white/5 backdrop-blur-lg shadow-sm') 
-                : 'bg-transparent'
+              : isLightMode 
+                ? `backdrop-blur-md shadow-sm ${isScrolled ? 'bg-white/70' : 'bg-white/30'}` 
+                : `backdrop-blur-md shadow-sm ${isScrolled ? 'bg-black/40' : 'bg-black/10'}`
           }
           ${isLightMode && !isMenuOpen ? 'text-black' : 'text-white'}
         `}
