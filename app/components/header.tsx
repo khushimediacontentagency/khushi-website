@@ -56,7 +56,7 @@ export default function Header() {
             isMenuOpen 
               ? 'bg-transparent shadow-none' 
               : isScrolled 
-                ? (isLightMode ? 'bg-white/95 backdrop-blur-md shadow-sm' : 'bg-zinc-950/70 backdrop-blur-md shadow-xl') 
+                ? (isLightMode ? 'bg-white/60 backdrop-blur-lg shadow-sm' : 'bg-white/5 backdrop-blur-lg shadow-sm') 
                 : 'bg-transparent'
           }
           ${isLightMode && !isMenuOpen ? 'text-black' : 'text-white'}
@@ -86,12 +86,12 @@ export default function Header() {
         </div>
 
         <nav className={`hidden lg:block z-50 ml-auto ${isMenuOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-          <ul className="flex space-x-6 text-lg uppercase font-(--font-oswald) tracking-widest">
+          <ul className="flex space-x-4 text-[15px] uppercase font-(--font-oswald) tracking-widest">
             {navLinks.map(([label, href]) => (
               <li key={label}>
                 <a
                   href={href}
-                  className={`px-4 py-2 rounded-full transition-all duration-300 ${isLightMode ? 'hover:bg-black/5' : 'hover:bg-white/10'} hover:text-[#ff1267]`}
+                  className={`px-3 py-2 rounded-full transition-all duration-300 ${isLightMode ? 'hover:bg-black/5' : 'hover:bg-white/10'} hover:text-[#ff1267]`}
                 >
                   {label}
                 </a>
