@@ -71,8 +71,14 @@ function ContactFormInner() {
   }, [searchParams]);
 
   const { register: regService, handleSubmit: handleService, reset: resetService, setValue: setValService, watch: watchService, formState: { errors: servErrors } } = useForm<any>();
+  
   const { register: regCreator, handleSubmit: handleCreator, control, reset: resetCreator, setValue: setValCreator, watch: watchCreator, formState: { errors: creatErrors } } = useForm<any>({
-    defaultValues: { socials: [{ platform: 'Instagram', link: '' }] }
+    defaultValues: { 
+      socials: [
+        { platform: 'Instagram', link: '' },
+        { platform: 'TikTok', link: '' }
+      ] 
+    }
   });
 
   const selectedService = watchService('serviceType');
@@ -226,7 +232,7 @@ function ContactFormInner() {
               {fields.map((field, index) => (
                 <SocialRow key={field.id} index={index} register={regCreator} remove={remove} control={control} showDelete={fields.length > 1} setVal={setValCreator} watch={watchCreator} errors={creatErrors} />
               ))}
-              <button type="button" onClick={() => append({ platform: 'Instagram', link: '' })} className="text-[#ff1267] text-xs font-bold uppercase flex items-center gap-2 hover:text-white transition-colors">
+              <button type="button" onClick={() => append({ platform: '', link: '' })} className="text-[#ff1267] text-xs font-bold uppercase flex items-center gap-2 hover:text-white transition-colors">
                 <FaPlus /> Add Another Social
               </button>
             </div>
@@ -257,7 +263,7 @@ function SocialRow({ index, register, remove, showDelete, setVal, watch, errors 
       <div className="flex flex-col md:flex-row gap-3 items-start">
         <div className="w-full md:w-1/3">
           <CustomSelect 
-            placeholder="Platform"
+            placeholder="Select Platform"
             options={["Instagram", "TikTok", "YouTube", "Portfolio", "Other"]}
             value={platform}
             onChange={(val: string) => setVal(`socials.${index}.platform`, val, { shouldValidate: true })}
