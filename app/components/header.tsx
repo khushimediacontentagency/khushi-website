@@ -145,7 +145,7 @@ export default function Header() {
           <a href="https://www.instagram.com/khushimedia/" target="_blank" rel="noopener noreferrer" className="text-2xl hover:text-[#ff1267] transition-colors">
             <FaInstagram />
           </a>
-          <a href="https://www.tiktok.com/@khusi_shah169" target="_blank" rel="noopener noreferrer" className="text-2xl hover:text-[#ff1267] transition-colors">
+          <a href="https://www.tiktok.com/@khushi_shah169" target="_blank" rel="noopener noreferrer" className="text-2xl hover:text-[#ff1267] transition-colors">
             <SiTiktok />
           </a>
         </div>
