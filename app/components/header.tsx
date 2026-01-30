@@ -1,39 +1,28 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { FaInstagram } from 'react-icons/fa';
+import { FaInstagram, FaBars, FaTimes } from 'react-icons/fa';
 import { SiTiktok } from 'react-icons/si';
 
 export default function Header() {
-  const [textColor, setTextColor] = useState('white');
-  const [hoverBg, setHoverBg] = useState('hover:bg-white/20');
+  const [isLightMode, setIsLightMode] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const headerRef = useRef<HTMLElement>(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      const scrollY = window.scrollY;
-      setIsScrolled(scrollY > 10);
+      setIsScrolled(window.scrollY > 20);
+      const headerHeight = 64; 
+      const sections = document.querySelectorAll('section[data-theme]');
+      let activeTheme = 'dark';
 
-      const headerHeight = headerRef.current?.offsetHeight || 80;
-      const sections = document.querySelectorAll('section');
-      let newTextColor = 'white';
-      let newHoverBg = 'hover:bg-white/20';
-
-      for (const section of Array.from(sections)) {
-        const rect = section.getBoundingClientRect();
-        if (rect.top <= headerHeight && rect.bottom > headerHeight) {
-          const classes = section.className;
-          if (classes.includes('bg-white')) {
-            newTextColor = 'black';
-            newHoverBg = 'hover:bg-black/10';
-          }
-          break;
+      sections.forEach((section) => {
+        const rect = (section as HTMLElement).getBoundingClientRect();
+        if (rect.top <= headerHeight && rect.bottom >= headerHeight) {
+          activeTheme = (section as HTMLElement).dataset.theme || 'dark';
         }
-      }
-
-      setTextColor(newTextColor);
-      setHoverBg(newHoverBg);
+      });
+      setIsLightMode(activeTheme === 'light');
     };
 
     window.addEventListener('scroll', handleScroll);
@@ -41,42 +30,125 @@ export default function Header() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+  }, [isMenuOpen]);
+
+  const navLinks = [
+    ['Home', '/#home'],
+    ['Brands', '/#brands'],
+    ['About Me', '/#about-me'],
+    ['Portfolio', '/portfolio'],
+    ['Work With Us', '/workwithus'],
+  ];
+
   return (
-    <header
-      ref={headerRef}
-      className={`
-        flex justify-between items-center pl-12 pr-6 fixed top-0 left-0 w-full z-50
-        py-6 bg-transparent transition-all duration-500
-        ${textColor === 'black' ? 'text-black' : 'text-white'}
-      `}
-      style={{
-        boxShadow: isScrolled ? '0 10px 30px -15px rgba(0,0,0,0.05)' : 'none'
-      }}
-    >
-      <div className="flex items-center space-x-4">
-        <Link href="/" className="transition-transform duration-300 hover:scale-105">
-          <img
-            src="/logos/logo.png"
-            alt="Khushi's Logo"
-            className={`h-12 w-auto transition-all duration-300 ${textColor === 'black' ? 'brightness-0' : 'brightness-0 invert'}`}
-          />
-        </Link>
-        <a href="https://www.instagram.com/khushimedia/" target="_blank" rel="noopener noreferrer" className="inline-block hover:scale-110 hover:text-[#ff1267] transition p-1">
-          <FaInstagram className="text-2xl" />
-        </a>
-        <a href="https://www.tiktok.com/@khusi_shah169" target="_blank" rel="noopener noreferrer" className="inline-block hover:scale-110 hover:text-[#ff1267] transition p-1">
-          <SiTiktok className="text-2xl" />
-        </a>
-      </div>
-      <nav className="ml-auto">
-        <ul className="flex space-x-1 text-base uppercase font-(--font-oswald) tracking-wide">
-          <li><a href="/#home" className={`inline-block transition-all duration-300 ${hoverBg} hover:text-[#ff1267] px-4 py-2 rounded-full`}>Home</a></li>
-          <li><a href="/#brands" className={`inline-block transition-all duration-300 ${hoverBg} hover:text-[#ff1267] px-4 py-2 rounded-full`}>Brands</a></li>
-          <li><a href="/#about-me" className={`inline-block transition-all duration-300 ${hoverBg} hover:text-[#ff1267] px-4 py-2 rounded-full`}>About Me</a></li>
-          <li><a href="/portfolio" className={`inline-block transition-all duration-300 ${hoverBg} hover:text-[#ff1267] px-4 py-2 rounded-full`}>Portfolio</a></li>
-          <li><a href="/workwithus" className={`inline-block transition-all duration-300 ${hoverBg} hover:text-[#ff1267] px-4 py-2 rounded-full`}>Work With Us</a></li>
+    <>
+      <header
+        className={`
+          fixed top-0 left-0 w-full z-50 flex items-center justify-between
+          px-6 md:px-12 py-4 transition-all duration-300
+          ${
+            isMenuOpen 
+              ? 'bg-transparent shadow-none' 
+              : isScrolled 
+                ? (isLightMode ? 'bg-white/60 backdrop-blur-lg shadow-sm' : 'bg-white/5 backdrop-blur-lg shadow-sm') 
+                : 'bg-transparent'
+          }
+          ${isLightMode && !isMenuOpen ? 'text-black' : 'text-white'}
+        `}
+      >
+        <div className="flex items-center space-x-4 z-50">
+          <Link href="/" onClick={() => setIsMenuOpen(false)} className="block transition-transform duration-300 hover:scale-105">
+            <img
+              src="/logos/logo.png"
+              alt="Khushi Logo"
+              className={`h-10 md:h-14 w-auto transition-all duration-300
+                ${isMenuOpen ? 'brightness-0 invert' : (isLightMode ? 'brightness-0' : 'brightness-0 invert')}
+              `}
+            />
+          </Link>
+          
+          {!isMenuOpen && (
+            <div className="hidden sm:flex items-center space-x-4 animate-in fade-in duration-300">
+              <a href="https://www.instagram.com/khushimedia/" target="_blank" rel="noopener noreferrer" className="hover:text-[#ff1267] transition-colors">
+                <FaInstagram className="text-xl" />
+              </a>
+              <a href="https://www.tiktok.com/@khusi_shah169" target="_blank" rel="noopener noreferrer" className="hover:text-[#ff1267] transition-colors">
+                <SiTiktok className="text-xl" />
+              </a>
+            </div>
+          )}
+        </div>
+
+        <nav className={`hidden lg:block z-50 ml-auto ${isMenuOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+          <ul className="flex space-x-4 text-[15px] uppercase font-(--font-oswald) tracking-widest">
+            {navLinks.map(([label, href]) => (
+              <li key={label}>
+                <a
+                  href={href}
+                  className={`px-3 py-2 rounded-full transition-all duration-300 ${isLightMode ? 'hover:bg-black/5' : 'hover:bg-white/10'} hover:text-[#ff1267]`}
+                >
+                  {label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        <button 
+          className="lg:hidden z-50 p-2 focus:outline-none"
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          aria-label="Toggle Menu"
+        >
+          <div className={`transition-transform duration-300 ${isMenuOpen ? 'rotate-90 text-white' : (isLightMode ? 'text-black' : 'text-white')}`}>
+             {isMenuOpen ? <FaTimes size={26} /> : <FaBars size={26} />}
+          </div>
+        </button>
+      </header>
+
+      <div 
+        className={`
+          fixed inset-0 z-40 lg:hidden flex flex-col justify-center items-center bg-zinc-950
+          transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]
+          ${isMenuOpen ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-full'}
+        `}
+      >
+        <ul className="space-y-8 text-center relative z-50">
+          {navLinks.map(([label, href], i) => (
+            <li 
+              key={label}
+              style={{ transitionDelay: `${i * 100}ms` }}
+              className={`transition-all duration-500 transform ${isMenuOpen ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}
+            >
+              <a 
+                href={href} 
+                onClick={() => setIsMenuOpen(false)}
+                className="text-4xl font-bold text-white uppercase font-(--font-oswald) tracking-tighter hover:text-[#ff1267] transition-colors"
+              >
+                {label}
+              </a>
+            </li>
+          ))}
         </ul>
-      </nav>
-    </header>
+        
+        <div className={`
+            absolute bottom-12 flex space-x-8 text-white/50 
+            transition-all duration-700 delay-500 
+            ${isMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}
+        `}>
+          <a href="https://www.instagram.com/khushimedia/" target="_blank" rel="noopener noreferrer" className="text-2xl hover:text-[#ff1267] transition-colors">
+            <FaInstagram />
+          </a>
+          <a href="https://www.tiktok.com/@khusi_shah169" target="_blank" rel="noopener noreferrer" className="text-2xl hover:text-[#ff1267] transition-colors">
+            <SiTiktok />
+          </a>
+        </div>
+      </div>
+    </>
   );
 }
