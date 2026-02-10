@@ -1,0 +1,210 @@
+code.gs:
+function doPost(e) {
+  var lock = LockService.getScriptLock();
+  lock.tryLock(10000);
+
+  try {Í
+    var doc = SpreadsheetApp.getActiveSpreadsheet();
+    var rawData = JSON.parse(e.postData.contents);
+    var type = rawData.type;
+
+    var adminEmails = [
+      "API123",
+      "API123",
+      "API123"
+    ].join(",");
+
+    var sheetName = type === 'service' ? 'Services' : 'Creators';
+    var sheet = doc.getSheetByName(sheetName);
+    var timestamp = new Date();
+    
+    var detailsSummary = ""; 
+
+    if (type === 'service') {
+      sheet.appendRow([
+        timestamp, 
+        rawData.firstName, 
+        rawData.lastName, 
+        rawData.email, 
+        rawData.phone, 
+        rawData.serviceType, 
+        rawData.details
+      ]);
+      detailsSummary = "\nService Type: " + rawData.serviceType + 
+                       "\nEvent Details: " + rawData.details;
+    } else {
+      var socialsString = rawData.socials.map(s => s.platform + ": " + s.link).join('\n');
+      sheet.appendRow([
+        timestamp, 
+        rawData.firstName, 
+        rawData.lastName, 
+        rawData.email, 
+        rawData.phone, 
+        socialsString,
+        rawData.details
+      ]);
+      detailsSummary = "\nSocial Media Links:\n" + socialsString + 
+                       "\n\nAbout the Creator:\n" + rawData.details;
+    }
+
+    var userSubject = "Confirmation: Your submission to Khushi Media";
+    var userBody = "Hi " + rawData.firstName + ",\n\n" +
+               "Thank you for reaching out! We have received your " + (type === 'service' ? "booking inquiry" : "creator application") + ".\n\n" +
+               "--- SUMMARY ---\n" +
+               "Name: " + rawData.firstName + " " + rawData.lastName + "\n" +
+               "Email: " + rawData.email + "\n" +
+               "Phone: " + rawData.phone + 
+               detailsSummary + "\n\n" +
+               "Our team will be in touch shortly.\n\n" +
+               "Best regards,\n" +
+               "Khushi Media Team";
+
+    MailApp.sendEmail({
+      to: rawData.email,
+      subject: userSubject,
+      body: userBody,
+      name: "Khushi Media" 
+    });
+
+    var adminSubject = "NEW FORM SUBMISSION: " + (type === 'service' ? "Booking" : "Creator");
+    var adminBody = "You have a new submission from the website:\n\n" +
+                    "Type: " + (type === 'service' ? "Service Inquiry" : "Creator Application") + "\n" +
+                    "Name: " + rawData.firstName + " " + rawData.lastName + "\n" +
+                    "Email: " + rawData.email + "\n" +
+                    "Phone: " + rawData.phone + "\n" +
+                    detailsSummary + "\n\n" +
+                    "View the full Google Sheet here: " + doc.getUrl();
+
+    MailApp.sendEmail({
+      to: adminEmails,
+      subject: adminSubject,
+      body: adminBody,
+      name: "Website Alert"
+    });
+
+    return ContentService.createTextOutput(JSON.stringify({ result: 'success' }))
+      .setMimeType(ContentService.MimeType.JSON);
+
+  } catch (error) {
+    return ContentService.createTextOutput(JSON.stringify({ result: 'error', error: error.toString() }))
+      .setMimeType(ContentService.MimeType.JSON);
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+
+KM C Approved.gs:
+function processApprovedCreators() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("KM C approved");
+  if (!sheet) return;
+
+  var lastRow = sheet.getLastRow();
+  if (lastRow < 2) return;
+
+  var dataRange = sheet.getRange(2, 1, lastRow - 1, 10);
+  var data = dataRange.getValues();
+  var processedEmails = new Set();
+  var emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+
+  for (var i = 0; i < data.length; i++) {
+    var rowEmail = data[i][3];
+    var rowStatus = data[i][8];
+    if (rowStatus === "Done" && rowEmail) {
+      processedEmails.add(rowEmail.toString().toLowerCase().trim());
+    }
+  }
+
+  for (var i = 0; i < data.length; i++) {
+    var row = data[i];
+    var firstName = row[1];
+    var rawEmail = row[3];
+    var email = rawEmail ? rawEmail.toString().toLowerCase().trim() : "";
+    var isTicked = row[7]; 
+    var currentStatus = row[8];
+
+    if (isTicked === true && currentStatus !== "Done") {
+      if (!emailRegex.test(email)) {
+        sheet.getRange(i + 2, 9).setValue("Failed");
+        sheet.getRange(i + 2, 10).setValue("Error: Invalid email format");
+      } else if (processedEmails.has(email)) {
+        sheet.getRange(i + 2, 9).setValue("Failed");
+        sheet.getRange(i + 2, 10).setValue("Error: Duplicate email already approved");
+      } else {
+        try {
+          MailApp.sendEmail({
+            to: rawEmail,
+            subject: "Congratulations! You've been approved - Khushi Media",
+            name: "Khushi Media",
+            body: "Hi " + firstName + ",\n\n" +
+                  "Great news! We have reviewed your application and you have been officially approved as a creator with Khushi Media.\n\n" +
+                  "We are excited to have you on board. Our team will share the next steps with you shortly.\n\n" +
+                  "Best regards,\n" +
+                  "Khushi Media Team"
+          });
+
+          sheet.getRange(i + 2, 9).setValue("Done");
+          processedEmails.add(email);
+
+        } catch (e) {
+          sheet.getRange(i + 2, 9).setValue("Failed");
+          sheet.getRange(i + 2, 10).setValue(e.toString());
+        }
+      }
+    }
+  }
+}
+
+Export to Client Data.gs:
+function exportToClientSheet(e) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sourceSheet = ss.getSheetByName("Creators");
+  
+  if (!e || !e.range) return;
+
+  var range = e.range;
+  if (sourceSheet.getName() !== "Creators" || range.getColumn() !== 8 || range.getRow() < 2) return;
+
+  var row = range.getRow();
+  var rowData = sourceSheet.getRange(row, 1, 1, 6).getValues()[0];
+  var emailToTarget = rowData[3].toString().toLowerCase().trim();
+  
+  var targetId = "API123";
+  var targetSheet = SpreadsheetApp.openById(targetId).getSheets()[0];
+  
+  var targetData = targetSheet.getDataRange().getValues();
+
+  if (range.getValue() === true) {
+    var isDuplicate = false;
+    for (var i = 0; i < targetData.length; i++) {
+      if (targetData[i][2] && targetData[i][2].toString().toLowerCase().trim() === emailToTarget) {
+        isDuplicate = true;
+        break;
+      }
+    }
+
+    if (isDuplicate) {
+      ss.toast("Email already exists in Client Data.", "Duplicate");
+      return;
+    }
+
+    targetSheet.appendRow([rowData[1], rowData[2], rowData[3], rowData[4], rowData[5]]);
+    ss.toast("Exported " + rowData[1], "Success");
+
+  } else if (range.getValue() === false) {
+    var deletedAny = false;
+    for (var j = targetData.length - 1; j >= 0; j--) {
+      var targetEmail = targetData[j][2] ? targetData[j][2].toString().toLowerCase().trim() : "";
+      if (targetEmail === emailToTarget) {
+        targetSheet.deleteRow(j + 1);
+        deletedAny = true;
+      }
+    }
+
+    if (deletedAny) {
+      ss.toast("Removed " + rowData[1] + " from Client Data.", "Deleted");
+    } else {
+      ss.toast("Could not find " + rowData[1] + " in Client Data.", "Not Found");
+    }
+  }
+}
