@@ -430,6 +430,7 @@ function SocialRow({ index, register, remove, showDelete, setVal, watch, errors 
                 <input 
                   type="text"
                   {...register(`socials.${index}.followers`, { 
+                    required: "Required",
                     pattern: {
                         value: /^(?:[0-9,.]+|n\/?a)$/i,
                         message: "Numbers or 'N/A' only"
