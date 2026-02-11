@@ -3,24 +3,22 @@ function doPost(e) {
   var lock = LockService.getScriptLock();
   lock.tryLock(10000);
 
-  try {Í
+  try {
     var doc = SpreadsheetApp.getActiveSpreadsheet();
     var rawData = JSON.parse(e.postData.contents);
     var type = rawData.type;
 
     var adminEmails = [
-      "API123",
-      "API123",
-      "API123"
+      "info@khushimediacontentagency.com",
+      "khushi862@yahoo.com",
+      "jesalvadgama@gmail.com"
     ].join(",");
 
-    var sheetName = type === 'service' ? 'Services' : 'Creators';
-    var sheet = doc.getSheetByName(sheetName);
     var timestamp = new Date();
     
-    var detailsSummary = ""; 
-
+    // --- SERVICE INQUIRY LOGIC ---
     if (type === 'service') {
+      var sheet = doc.getSheetByName('Services');
       sheet.appendRow([
         timestamp, 
         rawData.firstName, 
@@ -30,57 +28,83 @@ function doPost(e) {
         rawData.serviceType, 
         rawData.details
       ]);
-      detailsSummary = "\nService Type: " + rawData.serviceType + 
-                       "\nEvent Details: " + rawData.details;
-    } else {
-      var socialsString = rawData.socials.map(s => s.platform + ": " + s.link).join('\n');
+
+      sendEmails(rawData, "Service Inquiry", adminEmails, doc.getUrl());
+    } 
+    
+    // --- CREATOR APPLICATION LOGIC ---
+    else {
+      var sheet = doc.getSheetByName('Creators');
+      
+      // 1. Handle Agency Logic
+      var agencyStatus = rawData.agencies === 'Yes' ? 'Yes' : 'No';
+      var agencyList = rawData.agencies === 'Yes' ? rawData.agencyList : 'N/A';
+
+      // 2. Initialize Social Variables
+      var instaLink = "", instaCount = "";
+      var tiktokLink = "", tiktokCount = "";
+      var youtubeLink = "", youtubeCount = "";
+      var portfolioLink = "", portfolioCount = "";
+      var otherLinks = [], otherCounts = [];
+
+      // 3. Sort Socials into columns
+      if (rawData.socials && rawData.socials.length > 0) {
+        rawData.socials.forEach(function(s) {
+          var p = s.platform.toLowerCase();
+          var link = s.link;
+          var count = s.followers || 'N/A';
+
+          if (p.includes('instagram')) {
+            instaLink = link;
+            instaCount = count;
+          } else if (p.includes('tiktok')) {
+            tiktokLink = link;
+            tiktokCount = count;
+          } else if (p.includes('youtube')) {
+            youtubeLink = link;
+            youtubeCount = count;
+          } else if (p.includes('portfolio')) {
+            portfolioLink = link;
+            portfolioCount = count; // Likely N/A or empty
+          } else {
+            // Collect "Others"
+            var customName = s.platform === 'Other' ? (s.customPlatform || 'Other') : s.platform;
+            otherLinks.push(customName + ": " + link);
+            otherCounts.push(customName + ": " + count);
+          }
+        });
+      }
+
+      // 4. Append to Sheet (19 Columns)
+      // Headers: Timestamp | First | Last | Email | Phone | Location | Agency Y/N | Which Agency | Insta | Insta # | TikTok | TikTok # | Youtube | YT # | Portfolio | Port # | Other | Other # | Bio
       sheet.appendRow([
-        timestamp, 
-        rawData.firstName, 
-        rawData.lastName, 
-        rawData.email, 
-        rawData.phone, 
-        socialsString,
+        timestamp,
+        rawData.firstName,
+        rawData.lastName,
+        rawData.email,
+        rawData.phone,
+        rawData.finalLocation,
+        agencyStatus,
+        agencyList,
+        instaLink,
+        instaCount,
+        tiktokLink,
+        tiktokCount,
+        youtubeLink,
+        youtubeCount,
+        portfolioLink,
+        portfolioCount,
+        otherLinks.join('\n'),
+        otherCounts.join('\n'),
         rawData.details
       ]);
-      detailsSummary = "\nSocial Media Links:\n" + socialsString + 
-                       "\n\nAbout the Creator:\n" + rawData.details;
+
+      // Add extra data to object for the email template
+      rawData.formattedAgency = agencyStatus + (agencyStatus === 'Yes' ? " (" + agencyList + ")" : "");
+      rawData.formattedLocation = rawData.finalLocation;
+      
+      sendEmails(rawData, "Creator Application", adminEmails, doc.getUrl());
     }
-
-    var userSubject = "Confirmation: Your submission to Khushi Media";
-    var userBody = "Hi " + rawData.firstName + ",\n\n" +
-               "Thank you for reaching out! We have received your " + (type === 'service' ? "booking inquiry" : "creator application") + ".\n\n" +
-               "--- SUMMARY ---\n" +
-               "Name: " + rawData.firstName + " " + rawData.lastName + "\n" +
-               "Email: " + rawData.email + "\n" +
-               "Phone: " + rawData.phone + 
-               detailsSummary + "\n\n" +
-               "Our team will be in touch shortly.\n\n" +
-               "Best regards,\n" +
-               "Khushi Media Team";
-
-    MailApp.sendEmail({
-      to: rawData.email,
-      subject: userSubject,
-      body: userBody,
-      name: "Khushi Media" 
-    });
-
-    var adminSubject = "NEW FORM SUBMISSION: " + (type === 'service' ? "Booking" : "Creator");
-    var adminBody = "You have a new submission from the website:\n\n" +
-                    "Type: " + (type === 'service' ? "Service Inquiry" : "Creator Application") + "\n" +
-                    "Name: " + rawData.firstName + " " + rawData.lastName + "\n" +
-                    "Email: " + rawData.email + "\n" +
-                    "Phone: " + rawData.phone + "\n" +
-                    detailsSummary + "\n\n" +
-                    "View the full Google Sheet here: " + doc.getUrl();
-
-    MailApp.sendEmail({
-      to: adminEmails,
-      subject: adminSubject,
-      body: adminBody,
-      name: "Website Alert"
-    });
 
     return ContentService.createTextOutput(JSON.stringify({ result: 'success' }))
       .setMimeType(ContentService.MimeType.JSON);
@@ -93,6 +117,56 @@ function doPost(e) {
   }
 }
 
+function sendEmails(data, typeTitle, adminEmails, sheetUrl) {
+  var isService = data.type === 'service';
+  
+  // -- User Confirmation Email --
+  var userSubject = "Confirmation: Your submission to Khushi Media";
+  var detailsSummary = "";
+  
+  if (isService) {
+    detailsSummary = "\nService Type: " + data.serviceType + "\nEvent Details: " + data.details;
+  } else {
+    detailsSummary = "\nLocation: " + data.formattedLocation + 
+                     "\nAgency Rep: " + data.formattedAgency + 
+                     "\n\nAbout: " + data.details;
+  }
+
+  var userBody = "Hi " + data.firstName + ",\n\n" +
+             "Thank you for reaching out! We have received your " + typeTitle + ".\n\n" +
+             "--- SUMMARY ---\n" +
+             "Name: " + data.firstName + " " + data.lastName + "\n" +
+             "Email: " + data.email + "\n" +
+             "Phone: " + data.phone + 
+             detailsSummary + "\n\n" +
+             "Our team will be in touch shortly.\n\n" +
+             "Best regards,\n" +
+             "Khushi Media Team";
+
+  MailApp.sendEmail({
+    to: data.email,
+    subject: userSubject,
+    body: userBody,
+    name: "Khushi Media"
+  });
+
+  // -- Admin Alert Email --
+  var adminSubject = "NEW FORM SUBMISSION: " + typeTitle;
+  var adminBody = "You have a new submission from the website:\n\n" +
+                  "Type: " + typeTitle + "\n" +
+                  "Name: " + data.firstName + " " + data.lastName + "\n" +
+                  "Email: " + data.email + "\n" +
+                  "Phone: " + data.phone + "\n" +
+                  detailsSummary + "\n\n" +
+                  "View the full Google Sheet here: " + sheetUrl;
+
+  MailApp.sendEmail({
+    to: adminEmails,
+    subject: adminSubject,
+    body: adminBody,
+    name: "Website Alert"
+  });
+}
 
 KM C Approved.gs:
 function processApprovedCreators() {
