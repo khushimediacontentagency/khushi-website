@@ -84,7 +84,8 @@ function ContactFormInner() {
   const { register: regCreator, handleSubmit: handleCreator, control, reset: resetCreator, setValue: setValCreator, watch: watchCreator, formState: { errors: creatErrors } } = useForm<any>({
     defaultValues: { 
       socials: [
-        { platform: 'Instagram', link: '', followers: '' } 
+        { platform: 'Instagram', link: '', followers: '' },
+        { platform: 'TikTok', link: '', followers: '' }
       ],
       agencies: 'No', 
       locationSelect: ''
