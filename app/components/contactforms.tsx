@@ -272,7 +272,13 @@ function SocialRow({ index, register, remove, showDelete, setVal, watch, errors 
         <div className="flex-1 w-full">
           <div className="flex gap-2">
             <input 
-              {...register(`socials.${index}.link`, { required: "Link is required" })} 
+              {...register(`socials.${index}.link`, { 
+                required: "Link is required",
+                pattern: {
+                  value: /^(https?:\/\/)?([\w-]+\.)+[a-z]{2,9}(\/[\w- ./?%&=@_]*)?$/i,
+                  message: "Must be a valid link (e.g. https://instagram.com/jesalvadgama...)"
+                }
+              })} 
               className={inputStyle(!!rowError)} 
               placeholder={`Link to ${platform || 'Profile'}...`} 
             />
