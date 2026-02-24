@@ -55,13 +55,16 @@ export default function Brands() {
   const brands = [
     "/brandlogos/afronaut.jpg",
     "/brandlogos/ballucci.png",
-    "/brandlogos/CAA.webp",
+    "/brandlogos/caa.webp",
     "/brandlogos/desifriction.jpg",
     "/brandlogos/gk.png",
     "/brandlogos/indianfusion.png",
     "/brandlogos/sabinerooftopbar.png",
     "/brandlogos/tathaastu.jpg",
     "/brandlogos/thecoffeegen.jpg",
+    "/brandlogos/reviveroom.jpg",
+    "/brandlogos/royallancaster.jpg",
+    "/brandlogos/whitehorse.jpg",
   ];
 
   return (
