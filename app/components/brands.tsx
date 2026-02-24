@@ -55,7 +55,7 @@ export default function Brands() {
   const brands = [
     "/brandlogos/afronaut.jpg",
     "/brandlogos/ballucci.png",
-    "/brandlogos/caa.webp",
+    "/brandlogos/caa.jpg",
     "/brandlogos/desifriction.jpg",
     "/brandlogos/gk.png",
     "/brandlogos/indianfusion.png",
