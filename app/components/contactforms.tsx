@@ -120,7 +120,17 @@ function ContactFormInner() {
         }));
       }
 
-      await fetch(CONFIG.GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+      const fetchRequests = [
+        fetch(CONFIG.GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) })
+      ];
+
+      if (CONFIG.GOOGLE_SCRIPT_URL_BACKUP) {
+        fetchRequests.push(
+          fetch(CONFIG.GOOGLE_SCRIPT_URL_BACKUP, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) })
+        );
+      }
+
+      await Promise.allSettled(fetchRequests);
       
       setSubmitStatus('success');
       setLastSubmitTime(now);

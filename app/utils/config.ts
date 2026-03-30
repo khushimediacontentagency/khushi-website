@@ -1,5 +1,6 @@
 export const CONFIG = {
   GOOGLE_SCRIPT_URL: process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL || '',
+  GOOGLE_SCRIPT_URL_BACKUP: process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL_BACKUP || '',
   CLOUDINARY_CLOUD_NAME: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || '',
   CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY || '',
   CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET || '',
@@ -10,6 +11,12 @@ if (process.env.NODE_ENV === 'development') {
     console.log('Google Script URL loaded');
   } else {
     console.warn('CONFIG WARNING: NEXT_PUBLIC_GOOGLE_SCRIPT_URL is missing.');
+  }
+
+  if (CONFIG.GOOGLE_SCRIPT_URL_BACKUP) {
+    console.log('Backup Google Script URL loaded');
+  } else {
+    console.warn('CONFIG WARNING: NEXT_PUBLIC_GOOGLE_SCRIPT_URL_BACKUP is missing.');
   }
 
   const missingCloudinary = [];
