@@ -61,6 +61,7 @@ export default function Header() {
     ['Brands', '/#brands'],
     ['About Me', '/#about-me'],
     ['Portfolio', '/portfolio'],
+    ['Events', '/events'],
     ['Work With Us', '/workwithus'],
   ];
 

@@ -15,9 +15,11 @@ interface CloudinaryMedia {
 interface GalleryProps {
   mediaGroups: Record<string, CloudinaryMedia[]>;
   title: string;
+  backLink?: string;
+  backLabel?: string;
 }
 
-export default function Gallery({ mediaGroups, title }: GalleryProps) {
+export default function Gallery({ mediaGroups, title, backLink = "/portfolio", backLabel = "Back to Portfolio" }: GalleryProps) {
   const [activeFolder, setActiveFolder] = useState<string | null>(null);
   const [selectedMedia, setSelectedMedia] = useState<{ folder: string; index: number } | null>(null);
 
@@ -85,8 +87,8 @@ export default function Gallery({ mediaGroups, title }: GalleryProps) {
     <div className="w-full">
       <div className="mb-10 flex flex-col md:flex-row items-center justify-between gap-6">
         <h1 className="text-4xl font-bold uppercase tracking-widest text-white">{title}</h1>
-        <Link href="/portfolio" className="px-6 py-2 rounded-full border border-white/10 hover:border-[#ff1267] hover:text-[#ff1267] transition-all text-sm uppercase tracking-widest">
-          Back to Portfolio
+        <Link href={backLink} className="px-6 py-2 rounded-full border border-white/10 hover:border-[#ff1267] hover:text-[#ff1267] transition-all text-sm uppercase tracking-widest">
+          {backLabel}
         </Link>
       </div>
 
