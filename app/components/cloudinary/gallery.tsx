@@ -2,74 +2,100 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { X, ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react';
+import Link from 'next/link';
 
-interface CloudinaryImage {
+interface CloudinaryMedia {
   public_id: string;
   secure_url: string;
+  resource_type: 'image' | 'video';
   width: number;
   height: number;
 }
 
-interface PortfolioProps {
-  imageGroups: Record<string, CloudinaryImage[]>;
+interface GalleryProps {
+  mediaGroups: Record<string, CloudinaryMedia[]>;
+  title: string;
 }
 
-export default function Portfolio({ imageGroups }: PortfolioProps) {
+export default function Gallery({ mediaGroups, title }: GalleryProps) {
   const [activeFolder, setActiveFolder] = useState<string | null>(null);
-  const [selectedImage, setSelectedImage] = useState<{ folder: string; index: number } | null>(null);
+  const [selectedMedia, setSelectedMedia] = useState<{ folder: string; index: number } | null>(null);
 
-  const folders = Object.keys(imageGroups);
+  const folders = Object.keys(mediaGroups).filter(folder => mediaGroups[folder]?.length > 0);
 
   const openLightbox = (folder: string, index: number) => {
-    setSelectedImage({ folder, index });
+    setSelectedMedia({ folder, index });
   };
 
-  const closeLightbox = () => setSelectedImage(null);
+  const closeLightbox = () => setSelectedMedia(null);
 
   const navigate = useCallback((direction: 'prev' | 'next') => {
-    if (!selectedImage) return;
+    if (!selectedMedia) return;
 
-    const { folder, index } = selectedImage;
-    const currentFolderImages = imageGroups[folder];
+    const { folder, index } = selectedMedia;
+    const currentFolderMedia = mediaGroups[folder];
     let newIndex = direction === 'next' ? index + 1 : index - 1;
 
-    if (newIndex >= currentFolderImages.length) newIndex = 0;
-    if (newIndex < 0) newIndex = currentFolderImages.length - 1;
+    if (newIndex >= currentFolderMedia.length) newIndex = 0;
+    if (newIndex < 0) newIndex = currentFolderMedia.length - 1;
 
-    setSelectedImage({ folder, index: newIndex });
-  }, [selectedImage, imageGroups]);
+    setSelectedMedia({ folder, index: newIndex });
+  }, [selectedMedia, mediaGroups]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (!selectedImage) return;
+      if (!selectedMedia) return;
       if (e.key === 'Escape') closeLightbox();
       if (e.key === 'ArrowRight') navigate('next');
       if (e.key === 'ArrowLeft') navigate('prev');
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedImage, navigate]);
+  }, [selectedMedia, navigate]);
 
-  const getSliderImages = () => {
-    if (!selectedImage) return null;
-    const { folder, index } = selectedImage;
-    const list = imageGroups[folder];
+  const getSliderMedia = () => {
+    if (!selectedMedia) return null;
+    const { folder, index } = selectedMedia;
+    const list = mediaGroups[folder];
     const prev = list[(index - 1 + list.length) % list.length];
     const current = list[index];
     const next = list[(index + 1) % list.length];
     return { prev, current, next };
   };
 
-  const slider = getSliderImages();
+  const slider = getSliderMedia();
+
+  const renderMedia = (media: CloudinaryMedia, className: string, autoPlay: boolean = false) => {
+    if (media.resource_type === 'video') {
+      return (
+        <video 
+          src={media.secure_url} 
+          className={className} 
+          autoPlay={autoPlay} 
+          loop 
+          muted 
+          playsInline 
+        />
+      );
+    }
+    return <img src={media.secure_url} className={className} alt="Gallery item" loading="lazy" />;
+  };
 
   return (
     <div className="w-full">
+      <div className="mb-10 flex flex-col md:flex-row items-center justify-between gap-6">
+        <h1 className="text-4xl font-bold uppercase tracking-widest text-white">{title}</h1>
+        <Link href="/portfolio" className="px-6 py-2 rounded-full border border-white/10 hover:border-[#ff1267] hover:text-[#ff1267] transition-all text-sm uppercase tracking-widest">
+          Back to Portfolio
+        </Link>
+      </div>
+
       {!activeFolder ? (
         <div className="columns-1 sm:columns-3 lg:columns-4 gap-6">
           {folders.map((folder) => {
-            const coverImage = imageGroups[folder]?.[0];
-            const imageCount = imageGroups[folder]?.length || 0;
-            if (!coverImage) return null;
+            const coverMedia = mediaGroups[folder]?.[0];
+            const mediaCount = mediaGroups[folder]?.length || 0;
+            if (!coverMedia) return null;
 
             return (
               <div
@@ -77,12 +103,7 @@ export default function Portfolio({ imageGroups }: PortfolioProps) {
                 className="relative cursor-pointer overflow-hidden rounded-2xl group ring-1 ring-white/10 hover:ring-[#ff1267]/50 hover:shadow-[0_0_40px_rgba(255,18,103,0.15)] transition-all duration-700 break-inside-avoid mb-6"
                 onClick={() => setActiveFolder(folder)}
               >
-                <img
-                  src={coverImage.secure_url}
-                  alt={folder}
-                  className="w-full h-auto block transition-transform duration-1000 group-hover:scale-110 object-cover"
-                  loading="lazy"
-                />
+                {renderMedia(coverMedia, "w-full h-auto block transition-transform duration-1000 group-hover:scale-110 object-cover", true)}
                 
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent opacity-80 group-hover:opacity-100 transition-opacity duration-500" />
                 
@@ -90,11 +111,9 @@ export default function Portfolio({ imageGroups }: PortfolioProps) {
                   <h2 className="text-xl md:text-2xl font-light tracking-[0.25em] uppercase text-white drop-shadow-xl">
                     {folder}
                   </h2>
-                  
                   <div className="w-8 h-[2px] bg-[#ff1267] my-3 scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-center" />
-                  
                   <span className="text-xs tracking-[0.3em] uppercase text-white/60 group-hover:text-white/90 transition-colors duration-500">
-                    {imageCount} {imageCount === 1 ? 'Image' : 'Images'}
+                    {mediaCount} Items
                   </span>
                 </div>
               </div>
@@ -119,18 +138,13 @@ export default function Portfolio({ imageGroups }: PortfolioProps) {
           </div>
 
           <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-6">
-            {imageGroups[activeFolder].map((image, index) => (
+            {mediaGroups[activeFolder].map((media, index) => (
               <div
-                key={image.public_id}
+                key={media.public_id}
                 className="relative cursor-zoom-in overflow-hidden rounded-xl group ring-1 ring-white/10 hover:ring-[#ff1267]/50 hover:shadow-[0_0_40px_rgba(255,18,103,0.15)] transition-all duration-500 mb-6 break-inside-avoid"
                 onClick={() => openLightbox(activeFolder, index)}
               >
-                <img
-                  src={image.secure_url}
-                  alt={`${activeFolder} photo ${index}`}
-                  className="w-full h-auto block transition-transform duration-700 group-hover:scale-105"
-                  loading="lazy"
-                />
+                {renderMedia(media, "w-full h-auto block transition-transform duration-700 group-hover:scale-105", true)}
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-500 flex items-center justify-center">
                   <div className="opacity-0 group-hover:opacity-100 transition-all duration-500 scale-75 group-hover:scale-100 bg-white/10 backdrop-blur-md p-4 rounded-full border border-white/20">
                     <ZoomIn className="text-white w-6 h-6" strokeWidth={1.5} />
@@ -142,11 +156,11 @@ export default function Portfolio({ imageGroups }: PortfolioProps) {
         </div>
       )}
 
-      {selectedImage && slider && (
+      {selectedMedia && slider && (
         <div className="fixed inset-0 z-100 flex flex-col items-center justify-center bg-black/95 backdrop-blur-3xl animate-in fade-in duration-500">
           <div className="absolute top-0 left-0 w-full p-6 flex justify-between items-center z-140">
             <span className="text-white/50 text-[10px] md:text-xs tracking-[0.4em] uppercase bg-black/20 px-4 py-2 rounded-full backdrop-blur-md border border-white/5">
-              {selectedImage.folder} <span className="text-[#ff1267] mx-2">|</span> {selectedImage.index + 1} / {imageGroups[selectedImage.folder].length}
+              {selectedMedia.folder} <span className="text-[#ff1267] mx-2">|</span> {selectedMedia.index + 1} / {mediaGroups[selectedMedia.folder].length}
             </span>
             <button
               onClick={closeLightbox}
@@ -157,51 +171,16 @@ export default function Portfolio({ imageGroups }: PortfolioProps) {
           </div>
 
           <div className="relative flex-1 w-full flex items-center justify-center overflow-hidden py-24 px-4 md:px-32">
-            <div
-              className="hidden lg:block absolute left-[-5%] w-[35%] opacity-20 blur-[4px] cursor-pointer transition-all hover:opacity-40 hover:blur-[2px] duration-700 transform scale-90"
-              onClick={() => navigate('prev')}
-            >
-              <img src={slider.prev.secure_url} className="w-full h-auto max-h-[50vh] object-contain rounded-xl" alt="prev" />
-            </div>
-
             <div className="relative z-10 flex items-center justify-center transition-all duration-700 max-w-full max-h-full">
-              <img
-                src={slider.current.secure_url}
-                alt="Selected visual"
-                className="max-w-full max-h-[70vh] md:max-h-[80vh] w-auto h-auto object-contain shadow-[0_0_80px_rgba(255,18,103,0.15)] rounded-lg"
-              />
+               {renderMedia(slider.current, "max-w-full max-h-[70vh] md:max-h-[80vh] w-auto h-auto object-contain shadow-[0_0_80px_rgba(255,18,103,0.15)] rounded-lg", true)}
             </div>
 
-            <div
-              className="hidden lg:block absolute right-[-5%] w-[35%] opacity-20 blur-[4px] cursor-pointer transition-all hover:opacity-40 hover:blur-[2px] duration-700 transform scale-90"
-              onClick={() => navigate('next')}
-            >
-              <img src={slider.next.secure_url} className="w-full h-auto max-h-[50vh] object-contain rounded-xl" alt="next" />
-            </div>
-
-            <button
-              onClick={() => navigate('prev')}
-              className="absolute left-4 md:left-10 bg-white/5 hover:bg-[#ff1267] backdrop-blur-md border border-white/10 rounded-full p-3 md:p-4 text-white/60 hover:text-white transition-all z-140 hover:scale-110 shadow-lg"
-            >
+            <button onClick={() => navigate('prev')} className="absolute left-4 md:left-10 bg-white/5 hover:bg-[#ff1267] backdrop-blur-md border border-white/10 rounded-full p-3 md:p-4 text-white/60 hover:text-white transition-all z-140 hover:scale-110 shadow-lg">
               <ChevronLeft size={32} strokeWidth={1.5} />
             </button>
-
-            <button
-              onClick={() => navigate('next')}
-              className="absolute right-4 md:right-10 bg-white/5 hover:bg-[#ff1267] backdrop-blur-md border border-white/10 rounded-full p-3 md:p-4 text-white/60 hover:text-white transition-all z-140 hover:scale-110 shadow-lg"
-            >
+            <button onClick={() => navigate('next')} className="absolute right-4 md:right-10 bg-white/5 hover:bg-[#ff1267] backdrop-blur-md border border-white/10 rounded-full p-3 md:p-4 text-white/60 hover:text-white transition-all z-140 hover:scale-110 shadow-lg">
               <ChevronRight size={32} strokeWidth={1.5} />
             </button>
-          </div>
-
-          <div className="absolute bottom-8 md:bottom-10 flex gap-2 px-6 max-w-full overflow-hidden items-center z-140">
-            {imageGroups[selectedImage.folder].map((_, i) => (
-              <div
-                key={i}
-                className={`transition-all duration-500 rounded-full ${i === selectedImage.index ? 'w-10 h-1.5 bg-[#ff1267] shadow-[0_0_10px_rgba(255,18,103,0.5)]' : 'w-2 h-1.5 bg-white/20 hover:bg-white/40 cursor-pointer'}`}
-                onClick={() => setSelectedImage({ folder: selectedImage.folder, index: i })}
-              />
-            ))}
           </div>
         </div>
       )}

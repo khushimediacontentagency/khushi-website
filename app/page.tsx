@@ -1,36 +1,13 @@
-import { v2 as cloudinary } from 'cloudinary';
-import { CONFIG } from './utils/config';
 import Header from './components/header';
 import Brands from './components/brands';
 import AboutMe from './components/aboutme';
+import { fetchMediaFromFolder } from './utils/cloudinary';
 
 export const revalidate = 3600;
 
-async function fetchHomeVideo() {
-  cloudinary.config({
-    cloud_name: CONFIG.CLOUDINARY_CLOUD_NAME,
-    api_key: CONFIG.CLOUDINARY_API_KEY,
-    api_secret: CONFIG.CLOUDINARY_API_SECRET,
-  });
-
-  try {
-    const result = await cloudinary.search
-      .expression('resource_type:video AND folder="Home Page Video"')
-      .sort_by('created_at', 'desc')
-      .max_results(1)
-      .execute();
-
-    if (result.resources && result.resources.length > 0) {
-      return result.resources[0].secure_url;
-    }
-    return null;
-  } catch (error) {
-    return null;
-  }
-}
-
 export default async function Home() {
-  const videoUrl = await fetchHomeVideo();
+  const homeVideos = await fetchMediaFromFolder('Home Page Video', 'video');
+  const videoUrl = homeVideos && homeVideos.length > 0 ? homeVideos[0].secure_url : null;
 
   return (
     <div className="min-h-screen bg-zinc-950 flex flex-col">
@@ -46,10 +23,10 @@ export default async function Home() {
         />
       </section>
       <main className="grow">
-        <section data-theme="dark">
+        <section id="brands" data-theme="dark">
           <Brands />
         </section>
-        <section data-theme="light">
+        <section id="about-me" data-theme="light">
           <AboutMe />
         </section>
       </main>
