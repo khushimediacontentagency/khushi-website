@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import Header from '../components/header';
 
 export default function EventsPage() {
@@ -13,28 +14,69 @@ export default function EventsPage() {
       </div>
 
       <main className="grow flex flex-col md:flex-row">
-        <Link href="/events/headshotsocial" className="flex-1 relative group overflow-hidden border-b md:border-b-0 md:border-r border-white/10 flex items-center justify-center min-h-[25vh] md:min-h-full">
-          <div className="absolute inset-0 bg-zinc-900 group-hover:scale-105 transition-transform duration-700"></div>
-          <div className="absolute inset-0 bg-black/50 group-hover:bg-black/20 transition-colors duration-500"></div>
-          <h2 className="relative z-10 text-3xl md:text-4xl lg:text-5xl font-bold tracking-widest uppercase text-white group-hover:text-[#ff1267] transition-colors duration-500 text-center px-4">
-            The Headshot Social
-          </h2>
+        <Link href="/events/headshotsocial" className="flex-1 relative group overflow-hidden border-b md:border-b-0 md:border-r border-white/10 flex items-center justify-center min-h-[45vh] md:min-h-full">
+          <div className="absolute inset-0 transition-transform duration-700 group-hover:scale-105">
+            <Image 
+              src="/events/headshotsocial.jpeg"
+              alt="The Headshot Social Background"
+              fill
+              className="object-cover"
+              priority 
+            />
+          </div>
+          <div className="absolute inset-0 bg-black/60 group-hover:bg-black/30 transition-colors duration-500"></div>
+          
+          <div className="relative z-10 w-[90%] h-[50%] transition-transform duration-500 group-hover:scale-110">
+            <Image 
+              src="/headers/headshotsociallogo.png"
+              alt="The Headshot Social Logo"
+              fill
+              className="object-contain drop-shadow-[0_0_30px_rgba(0,0,0,0.8)]"
+            />
+          </div>
         </Link>
 
-        <Link href="/events/creativeentrepreneur" className="flex-1 relative group overflow-hidden border-b md:border-b-0 md:border-r border-white/10 flex items-center justify-center min-h-[25vh] md:min-h-full">
-          <div className="absolute inset-0 bg-zinc-950 group-hover:scale-105 transition-transform duration-700"></div>
-          <div className="absolute inset-0 bg-black/50 group-hover:bg-black/20 transition-colors duration-500"></div>
-          <h2 className="relative z-10 text-3xl md:text-4xl lg:text-5xl font-bold tracking-widest uppercase text-white group-hover:text-[#ff1267] transition-colors duration-500 text-center px-4">
-            Creative Entrepreneur
-          </h2>
+        <Link href="/events/creativeentrepreneur" className="flex-1 relative group overflow-hidden border-b md:border-b-0 md:border-r border-white/10 flex items-center justify-center min-h-[45vh] md:min-h-full">
+          <div className="absolute inset-0 transition-transform duration-700 group-hover:scale-105">
+            <Image 
+              src="/events/creativeentrepreneur.jpeg" 
+              alt="Createur Background"
+              fill
+              className="object-cover"
+              priority
+            />
+          </div>
+          <div className="absolute inset-0 bg-black/60 group-hover:bg-black/30 transition-colors duration-500"></div>
+          
+          <div className="relative z-10 w-[90%] h-[50%] transition-transform duration-500 group-hover:scale-110">
+            <Image 
+              src="/headers/createurlogo.png"
+              alt="Createur Logo"
+              fill
+              className="object-contain drop-shadow-[0_0_30px_rgba(0,0,0,0.8)]"
+            />
+          </div>
         </Link>
 
-        <Link href="/events/matchaclub" className="flex-1 relative group overflow-hidden flex items-center justify-center min-h-[25vh] md:min-h-full">
-          <div className="absolute inset-0 bg-zinc-900 group-hover:scale-105 transition-transform duration-700"></div>
-          <div className="absolute inset-0 bg-black/50 group-hover:bg-black/20 transition-colors duration-500"></div>
-          <h2 className="relative z-10 text-3xl md:text-4xl lg:text-5xl font-bold tracking-widest uppercase text-white group-hover:text-[#ff1267] transition-colors duration-500 text-center px-4">
-            Matcha Club
-          </h2>
+        <Link href="/events/matchaclub" className="flex-1 relative group overflow-hidden flex items-center justify-center min-h-[45vh] md:min-h-full">
+          <div className="absolute inset-0 transition-transform duration-700 group-hover:scale-105">
+            <Image 
+              src="/events/matchacha.jpeg" 
+              alt="Matcha Club Background"
+              fill
+              className="object-cover"
+            />
+          </div>
+          <div className="absolute inset-0 bg-black/60 group-hover:bg-black/30 transition-colors duration-500"></div>
+          
+          <div className="relative z-10 w-[110%] h-[55%] scale-125 transition-transform duration-500 group-hover:scale-[1.35]">
+            <Image 
+              src="/headers/matchachalogo.png"
+              alt="Matcha Club Logo"
+              fill
+              className="object-contain drop-shadow-[0_0_40px_rgba(0,0,0,0.9)]"
+            />
+          </div>
         </Link>
       </main>
     </div>
