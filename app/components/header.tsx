@@ -1,15 +1,20 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { FaInstagram, FaBars, FaTimes } from 'react-icons/fa';
 import { SiTiktok } from 'react-icons/si';
 
 export default function Header() {
+  const pathname = usePathname();
   const [isLightMode, setIsLightMode] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [activeHash, setActiveHash] = useState('');
 
   useEffect(() => {
+    setActiveHash(window.location.hash);
+
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
       
@@ -24,12 +29,24 @@ export default function Header() {
         }
       });
       setIsLightMode(activeTheme === 'light');
+
+      if (pathname === '/') {
+        const hashSections = ['home', 'brands', 'about-me'];
+        let current = '';
+        for (const s of hashSections) {
+          const el = document.getElementById(s);
+          if (el && el.getBoundingClientRect().top <= 150) {
+            current = '#' + s;
+          }
+        }
+        setActiveHash(current || '#home');
+      }
     };
 
     window.addEventListener('scroll', handleScroll);
     handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [pathname]);
 
   useEffect(() => {
     if (isMenuOpen) {
@@ -44,8 +61,16 @@ export default function Header() {
     ['Brands', '/#brands'],
     ['About Me', '/#about-me'],
     ['Portfolio', '/portfolio'],
+    ['Events', '/events'],
     ['Work With Us', '/workwithus'],
   ];
+
+  const checkIsActive = (href: string) => {
+    if (href.startsWith('/#')) {
+      return pathname === '/' && activeHash === href.replace('/', '');
+    }
+    return pathname.startsWith(href);
+  };
 
   return (
     <>
@@ -88,16 +113,22 @@ export default function Header() {
 
         <nav className={`hidden lg:block z-50 ml-auto ${isMenuOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
           <ul className="flex space-x-4 text-[15px] uppercase font-(--font-oswald) tracking-widest">
-            {navLinks.map(([label, href]) => (
-              <li key={label}>
-                <a
-                  href={href}
-                  className={`px-3 py-2 rounded-full transition-all duration-300 ${isLightMode ? 'hover:bg-black/5' : 'hover:bg-white/10'} hover:text-[#ff1267]`}
-                >
-                  {label}
-                </a>
-              </li>
-            ))}
+            {navLinks.map(([label, href]) => {
+              const isActive = checkIsActive(href);
+              return (
+                <li key={label}>
+                  <Link
+                    href={href}
+                    onClick={() => {
+                      if (href.startsWith('/#')) setActiveHash(href.replace('/', ''));
+                    }}
+                    className={`px-3 py-2 rounded-full transition-all duration-300 ${isActive ? 'text-[#ff1267]' : (isLightMode ? 'hover:bg-black/5 hover:text-[#ff1267]' : 'hover:bg-white/10 hover:text-[#ff1267]')}`}
+                  >
+                    {label}
+                  </Link>
+                </li>
+              )
+            })}
           </ul>
         </nav>
 
@@ -120,21 +151,24 @@ export default function Header() {
         `}
       >
         <ul className="space-y-8 text-center relative z-50">
-          {navLinks.map(([label, href], i) => (
-            <li 
-              key={label}
-              style={{ transitionDelay: `${i * 100}ms` }}
-              className={`transition-all duration-500 transform ${isMenuOpen ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}
-            >
-              <a 
-                href={href} 
-                onClick={() => setIsMenuOpen(false)}
-                className="text-4xl font-bold text-white uppercase font-(--font-oswald) tracking-tighter hover:text-[#ff1267] transition-colors"
+          {navLinks.map(([label, href], i) => {
+            const isActive = checkIsActive(href);
+            return (
+              <li 
+                key={label}
+                style={{ transitionDelay: `${i * 100}ms` }}
+                className={`transition-all duration-500 transform ${isMenuOpen ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}
               >
-                {label}
-              </a>
-            </li>
-          ))}
+                <Link 
+                  href={href} 
+                  onClick={() => setIsMenuOpen(false)}
+                  className={`text-4xl font-bold uppercase font-(--font-oswald) tracking-tighter transition-colors ${isActive ? 'text-[#ff1267]' : 'text-white hover:text-[#ff1267]'}`}
+                >
+                  {label}
+                </Link>
+              </li>
+            );
+          })}
         </ul>
         
         <div className={`
