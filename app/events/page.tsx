@@ -39,7 +39,7 @@ export default function EventsPage() {
         <Link href="/events/creativeentrepreneur" className="flex-1 relative group overflow-hidden border-b md:border-b-0 md:border-r border-white/10 flex items-center justify-center min-h-[45vh] md:min-h-full">
           <div className="absolute inset-0 transition-transform duration-700 group-hover:scale-105">
             <Image 
-              src="/events/creativeentrepreneur.jpeg" 
+              src="/events/createur.jpeg" 
               alt="Createur Background"
               fill
               className="object-cover"

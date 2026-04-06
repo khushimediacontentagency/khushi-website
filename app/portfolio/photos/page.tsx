@@ -6,18 +6,20 @@ export const revalidate = 3600;
 
 export default async function PhotosPage() {
   const folders = [
-    'Event Photography', 
-    'Headshots', 
-    'Live shows', 
-    'Salon Content', 
-    'Wedding Content'
+    { name: 'Event Photography', path: 'Photos/Event Photography' }, 
+    { name: 'Headshots', path: 'Photos/Headshots' }, 
+    { name: 'Live shows', path: 'Photos/Live shows' },
+    { name: 'Salon Content', path: 'Photos/Salon Content' }, 
+    { name: 'Wedding Content', path: 'Photos/Wedding Content' }
   ];
   
   const mediaGroups: Record<string, any[]> = {};
-  const results = await Promise.all(folders.map(f => fetchMediaFromFolder(f, 'image')));
+  const results = await Promise.all(
+    folders.map(f => fetchMediaFromFolder(f.path, 'image'))
+  );
   
   folders.forEach((folder, index) => {
-    mediaGroups[folder] = results[index];
+    mediaGroups[folder.name] = results[index];
   });
 
   return (
