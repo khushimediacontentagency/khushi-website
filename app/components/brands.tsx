@@ -1,7 +1,57 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { X, ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react';
+
+const OptimizedVideo = ({ src }: { src: string }) => {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [isInView, setIsInView] = useState(false);
+  const posterUrl = src.replace(/\.[^/.]+$/, ".jpg").replace("/upload/", "/upload/q_auto,f_auto,w_400/");
+  const gridVideoUrl = src.replace("/upload/", "/upload/q_auto:eco,vc_auto,w_400/");
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsInView(true);
+          videoRef.current?.play().catch(() => {});
+        } else {
+          videoRef.current?.pause();
+        }
+      },
+      { rootMargin: '400px 0px' } 
+    );
+
+    if (videoRef.current) {
+      observer.observe(videoRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div className="relative w-full h-full bg-zinc-900 overflow-hidden rounded-xl">
+      {!isLoaded && (
+        <img 
+          src={posterUrl} 
+          className="absolute inset-0 w-full h-full object-cover blur-md scale-110 transition-opacity duration-500" 
+          alt="Loading..."
+          loading="lazy"
+        />
+      )}
+      <video 
+        ref={videoRef}
+        src={isInView ? gridVideoUrl : undefined} 
+        className={`w-full h-full object-cover transition-opacity duration-700 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+        loop
+        muted
+        playsInline
+        onCanPlay={() => setIsLoaded(true)}
+      />
+    </div>
+  );
+};
 
 const useCardBackgroundColor = (imageSrc: string) => {
   const [color, setColor] = useState<string>('rgba(39, 39, 42, 1)');
@@ -155,22 +205,26 @@ export default function Brands({ brandLogos, brandImages }: { brandLogos: string
 
             {!brandImages[activeBrand] || brandImages[activeBrand].length === 0 ? (
               <div className="flex items-center justify-center py-20 text-white/40 tracking-[0.2em] uppercase text-sm">
-                No images available for this brand
+                No images or videos available for this brand
               </div>
             ) : (
               <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-6">
-                {brandImages[activeBrand].map((image: any, index: number) => (
+                {brandImages[activeBrand].map((media: any, index: number) => (
                   <div
-                    key={image.public_id}
+                    key={media.public_id}
                     className="relative cursor-zoom-in overflow-hidden rounded-xl group ring-1 ring-white/10 hover:ring-[#ff1267]/50 hover:shadow-[0_0_40px_rgba(255,18,103,0.15)] transition-all duration-500 mb-6 break-inside-avoid"
                     onClick={() => openLightbox(index)}
                   >
-                    <img
-                      src={image.secure_url}
-                      alt={`${activeBrand} photo ${index}`}
-                      className="w-full h-auto block transition-transform duration-700 group-hover:scale-105"
-                      loading="lazy"
-                    />
+                    {media.resource_type === 'video' ? (
+                      <OptimizedVideo src={media.secure_url} />
+                    ) : (
+                      <img
+                        src={media.secure_url.replace("/upload/", "/upload/q_auto,f_auto,w_500/")}
+                        alt={`${activeBrand} photo ${index}`}
+                        className="w-full h-auto block transition-transform duration-700 group-hover:scale-105"
+                        loading="lazy"
+                      />
+                    )}
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-500 flex items-center justify-center">
                       <div className="opacity-0 group-hover:opacity-100 transition-all duration-500 scale-75 group-hover:scale-100 bg-white/10 backdrop-blur-md p-4 rounded-full border border-white/20">
                         <ZoomIn className="text-white w-6 h-6" strokeWidth={1.5} />
@@ -203,22 +257,42 @@ export default function Brands({ brandLogos, brandImages }: { brandLogos: string
               className="hidden lg:block absolute left-[-5%] w-[35%] opacity-20 blur-[4px] cursor-pointer transition-all hover:opacity-40 hover:blur-[2px] duration-700 transform scale-90"
               onClick={() => navigate('prev')}
             >
-              <img src={slider.prev.secure_url} className="w-full h-auto max-h-[50vh] object-contain rounded-xl" alt="prev" />
+              {slider.prev.resource_type === 'video' ? (
+                 <img src={slider.prev.secure_url.replace(/\.[^/.]+$/, ".jpg").replace("/upload/", "/upload/w_300,q_auto/")} className="w-full h-auto max-h-[50vh] object-contain rounded-xl" alt="prev" />
+              ) : (
+                 <img src={slider.prev.secure_url.replace("/upload/", "/upload/w_300,q_auto/")} className="w-full h-auto max-h-[50vh] object-contain rounded-xl" alt="prev" />
+              )}
             </div>
 
             <div className="relative z-10 flex items-center justify-center transition-all duration-700 max-w-full max-h-full">
-              <img
-                src={slider.current.secure_url}
-                alt="Selected visual"
-                className="max-w-full max-h-[70vh] md:max-h-[80vh] w-auto h-auto object-contain shadow-[0_0_80px_rgba(255,18,103,0.15)] rounded-lg"
-              />
+              {slider.current.resource_type === 'video' ? (
+                 <video 
+                   src={slider.current.secure_url.replace("/upload/", "/upload/q_auto,vc_auto/")} 
+                   poster={slider.current.secure_url.replace(/\.[^/.]+$/, ".jpg").replace("/upload/", "/upload/q_auto,f_auto/")}
+                   className="max-w-full max-h-[70vh] md:max-h-[80vh] rounded-lg shadow-[0_0_80px_rgba(255,18,103,0.15)] bg-black/20" 
+                   controls 
+                   autoPlay 
+                   muted 
+                   playsInline 
+                 />
+               ) : (
+                 <img 
+                   src={slider.current.secure_url.replace("/upload/", "/upload/q_auto:best,f_auto/")} 
+                   className="max-w-full max-h-[70vh] md:max-h-[80vh] w-auto h-auto object-contain shadow-[0_0_80px_rgba(255,18,103,0.15)] rounded-lg" 
+                   alt="Selected visual"
+                 />
+               )}
             </div>
 
             <div
               className="hidden lg:block absolute right-[-5%] w-[35%] opacity-20 blur-[4px] cursor-pointer transition-all hover:opacity-40 hover:blur-[2px] duration-700 transform scale-90"
               onClick={() => navigate('next')}
             >
-              <img src={slider.next.secure_url} className="w-full h-auto max-h-[50vh] object-contain rounded-xl" alt="next" />
+              {slider.next.resource_type === 'video' ? (
+                 <img src={slider.next.secure_url.replace(/\.[^/.]+$/, ".jpg").replace("/upload/", "/upload/w_300,q_auto/")} className="w-full h-auto max-h-[50vh] object-contain rounded-xl" alt="next" />
+              ) : (
+                 <img src={slider.next.secure_url.replace("/upload/", "/upload/w_300,q_auto/")} className="w-full h-auto max-h-[50vh] object-contain rounded-xl" alt="next" />
+              )}
             </div>
 
             <button

@@ -1,27 +1,33 @@
 import Header from '../../components/header';
-import UgcGallery from '../ugc/gallery';
+import Gallery from '../../components/cloudinary/gallery';
+import { fetchMediaFromFolder } from '../../utils/cloudinary';
 
 export const revalidate = 3600;
 
-export default function UGCPage() {
-    const UGC_VIDEOS = [
-    "https://www.instagram.com/p/DWRJB91iOgf/", 
-    "https://www.tiktok.com/@khushi_shah169/video/7622752124182547734",
-    "https://www.tiktok.com/@khushi_shah169/video/7622751659839606038",
-    "https://www.tiktok.com/@khushi_shah169/video/7621227221822311702",
-    "https://www.tiktok.com/@khushi_shah169/video/7620078982762859798",
-    "https://www.tiktok.com/@khushi_shah169/video/7615652384634686742",
+export default async function UGCPage() {
+  const folders = [
+    { name: 'UGC Content', path: 'UGC' } 
   ];
+  
+  const mediaGroups: Record<string, any[]> = {};
+  const results = await Promise.all(
+    folders.map(f => fetchMediaFromFolder(f.path, 'all'))
+  );
+  
+  folders.forEach((folder, index) => {
+    mediaGroups[folder.name] = results[index] || [];
+  });
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col">
       <Header />
       <main className="grow container mx-auto px-4 pt-32 pb-12">
-        <UgcGallery 
-          videos={UGC_VIDEOS} 
+        <Gallery 
+          mediaGroups={mediaGroups} 
           title="UGC & Content Creation" 
-          backLink="/portfolio"
+          backLink="/portfolio" 
           backLabel="Back to Portfolio"
+          defaultFolder="UGC Content" 
         />
       </main>
       <footer className="py-8 text-center text-gray-800 text-sm">

@@ -4,7 +4,7 @@ import { CONFIG } from './config';
 const mediaCache: Record<string, { data: any; timestamp: number }> = {};
 const CACHE_DURATION = 15 * 60 * 1000;
 
-export async function fetchMediaFromFolder(folder: string, resourceType: 'image' | 'video' = 'image') {
+export async function fetchMediaFromFolder(folder: string, resourceType: 'image' | 'video' | 'all' = 'image') {
   const cacheKey = `${folder}-${resourceType}`;
   const now = Date.now();
   
@@ -19,8 +19,12 @@ export async function fetchMediaFromFolder(folder: string, resourceType: 'image'
   });
 
   try {
+    const expression = resourceType === 'all' 
+      ? `folder:"${folder}"` 
+      : `resource_type:${resourceType} AND folder:"${folder}"`;
+
     const result = await cloudinary.search
-      .expression(`resource_type:${resourceType} AND folder="${folder}"`)
+      .expression(expression)
       .sort_by('created_at', 'desc')
       .max_results(500)
       .execute();
@@ -28,6 +32,7 @@ export async function fetchMediaFromFolder(folder: string, resourceType: 'image'
     mediaCache[cacheKey] = { data: result.resources, timestamp: now };
     return result.resources;
   } catch (error) {
+    console.error(`Error fetching from Cloudinary folder ${folder}:`, error);
     return [];
   }
 }

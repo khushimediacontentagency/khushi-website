@@ -22,9 +22,11 @@ const BRAND_LOGOS = [
 
 export default async function Home() {
   const homeVideos = await fetchMediaFromFolder('Home Page Video', 'video');
-  const videoUrl = homeVideos && homeVideos.length > 0 ? homeVideos[0].secure_url : null;
+  const rawVideoUrl = homeVideos && homeVideos.length > 0 ? homeVideos[0].secure_url : null;
+  const videoUrl = rawVideoUrl ? rawVideoUrl.replace("/upload/", "/upload/q_auto:good,w_1920,vc_auto/") : null;
+  const posterUrl = rawVideoUrl ? rawVideoUrl.replace(/\.[^/.]+$/, ".jpg").replace("/upload/", "/upload/q_auto:good,w_1920,f_auto/") : undefined;
   const brandNames = BRAND_LOGOS.map(src => src.split('/').pop()?.split('.')[0]).filter(Boolean) as string[];
-  const brandPromises = brandNames.map(name => fetchMediaFromFolder(`Brand Logos/${name}`, 'image'));
+  const brandPromises = brandNames.map(name => fetchMediaFromFolder(`Brands/${name}`, 'all'));
   const brandResults = await Promise.all(brandPromises);
 
   const brandImages: Record<string, any[]> = {};
@@ -35,9 +37,10 @@ export default async function Home() {
   return (
     <div className="min-h-screen bg-zinc-950 flex flex-col overflow-x-hidden">
       <Header />
-      <section id="home" data-theme="dark" className="w-full h-screen">
+      <section id="home" data-theme="dark" className="w-full h-screen bg-black">
         <video
           src={videoUrl || "/video_placeholder.mp4"}
+          poster={posterUrl}
           autoPlay
           loop
           muted

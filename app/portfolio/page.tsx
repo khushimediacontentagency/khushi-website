@@ -10,7 +10,7 @@ export default function PortfolioPage() {
         <Link href="/portfolio/photos" className="flex-1 relative group overflow-hidden border-b border-white/10 flex items-center justify-center min-h-[30vh]">
           <div className="absolute inset-0 transition-transform duration-700 group-hover:scale-105">
             <Image 
-              src="/images/photos-bg.jpg"
+              src="/portfolio/photosbanner.jpeg"
               alt="Photos Background"
               fill
               className="object-cover"
@@ -24,10 +24,10 @@ export default function PortfolioPage() {
         <Link href="/portfolio/videos" className="flex-1 relative group overflow-hidden border-b border-white/10 flex items-center justify-center min-h-[30vh]">
           <div className="absolute inset-0 transition-transform duration-700 group-hover:scale-105">
             <Image 
-              src="/images/videos-bg.jpg"
+              src="/portfolio/videobanner.jpeg"
               alt="Videos Background"
               fill
-              className="object-cover"
+              className="object-cover object-[50%_30%]"
             />
           </div>
           <div className="absolute inset-0 bg-black/50 group-hover:bg-black/20 transition-colors duration-500"></div>
@@ -37,7 +37,7 @@ export default function PortfolioPage() {
         <Link href="/portfolio/ugc" className="flex-1 relative group overflow-hidden flex items-center justify-center min-h-[30vh]">
           <div className="absolute inset-0 transition-transform duration-700 group-hover:scale-105">
             <Image 
-              src="/images/ugc-bg.jpg"
+              src="/portfolio/ugcbanner.jpeg"
               alt="UGC Background"
               fill
               className="object-cover"
@@ -46,7 +46,6 @@ export default function PortfolioPage() {
           <div className="absolute inset-0 bg-black/50 group-hover:bg-black/20 transition-colors duration-500"></div>
           <h2 className="relative z-10 text-5xl md:text-7xl font-bold tracking-widest uppercase text-white group-hover:text-[#ff1267] transition-colors duration-500">UGC / Content</h2>
         </Link>
-
       </main>
     </div>
   );
