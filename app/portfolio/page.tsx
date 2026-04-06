@@ -13,12 +13,12 @@ export default function PortfolioPage() {
               src="/portfolio/photosbanner.jpeg"
               alt="Photos Background"
               fill
-              className="object-cover"
+              className="object-cover object" 
               priority
             />
           </div>
           <div className="absolute inset-0 bg-black/50 group-hover:bg-black/20 transition-colors duration-500"></div>
-          <h2 className="relative z-10 text-5xl md:text-7xl font-bold tracking-widest uppercase text-white group-hover:text-[#ff1267] transition-colors duration-500">Photos</h2>
+          <h2 className="relative z-10 w-full text-center px-4 text-5xl md:text-7xl font-bold tracking-widest uppercase text-white group-hover:text-[#ff1267] transition-colors duration-500">Photos</h2>
         </Link>
 
         <Link href="/portfolio/videos" className="flex-1 relative group overflow-hidden border-b border-white/10 flex items-center justify-center min-h-[30vh]">
@@ -27,11 +27,11 @@ export default function PortfolioPage() {
               src="/portfolio/videobanner.jpeg"
               alt="Videos Background"
               fill
-              className="object-cover object-[50%_30%]"
+              className="object-cover object"
             />
           </div>
           <div className="absolute inset-0 bg-black/50 group-hover:bg-black/20 transition-colors duration-500"></div>
-          <h2 className="relative z-10 text-5xl md:text-7xl font-bold tracking-widest uppercase text-white group-hover:text-[#ff1267] transition-colors duration-500">Videos</h2>
+          <h2 className="relative z-10 w-full text-center px-4 text-5xl md:text-7xl font-bold tracking-widest uppercase text-white group-hover:text-[#ff1267] transition-colors duration-500">Videos</h2>
         </Link>
 
         <Link href="/portfolio/ugc" className="flex-1 relative group overflow-hidden flex items-center justify-center min-h-[30vh]">
@@ -40,11 +40,11 @@ export default function PortfolioPage() {
               src="/portfolio/ugcbanner.jpeg"
               alt="UGC Background"
               fill
-              className="object-cover"
+              className="object-cover object" 
             />
           </div>
           <div className="absolute inset-0 bg-black/50 group-hover:bg-black/20 transition-colors duration-500"></div>
-          <h2 className="relative z-10 text-5xl md:text-7xl font-bold tracking-widest uppercase text-white group-hover:text-[#ff1267] transition-colors duration-500">UGC / Content</h2>
+          <h2 className="relative z-10 w-full text-center px-4 text-5xl md:text-7xl font-bold tracking-widest uppercase text-white group-hover:text-[#ff1267] transition-colors duration-500">UGC / Content</h2>
         </Link>
       </main>
     </div>
