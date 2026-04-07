@@ -7,8 +7,9 @@ const OptimizedVideo = ({ src }: { src: string }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isInView, setIsInView] = useState(false);
+  
   const posterUrl = src.replace(/\.[^/.]+$/, ".jpg").replace("/upload/", "/upload/q_auto,f_auto,w_400/");
-  const gridVideoUrl = src.replace("/upload/", "/upload/q_auto:eco,vc_auto,w_400/");
+  const gridVideoUrl = src.replace("/upload/", "/upload/w_400,q_auto:eco,vc_auto,so_0,eo_4,fps_15/");
 
   useEffect(() => {
     const observer = new IntersectionObserver(

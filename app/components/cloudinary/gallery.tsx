@@ -26,7 +26,7 @@ const OptimizedVideo = ({ src }: { src: string }) => {
   const [isInView, setIsInView] = useState(false);
   
   const posterUrl = src.replace(/\.[^/.]+$/, ".jpg").replace("/upload/", "/upload/q_auto,f_auto,w_400/");
-  const gridVideoUrl = src.replace("/upload/", "/upload/q_auto:eco,vc_auto,w_400/");
+  const gridVideoUrl = src.replace("/upload/", "/upload/w_400,q_auto:eco,vc_auto,so_0,eo_4,fps_15/");
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -182,7 +182,7 @@ export default function Gallery({ mediaGroups, title, backLink = "/portfolio", b
                    className="max-w-full max-h-full rounded-lg shadow-[0_0_80px_rgba(255,18,103,0.15)] bg-black/20" 
                    controls 
                    autoPlay 
-                   muted
+                   muted 
                    playsInline 
                  />
                ) : (
