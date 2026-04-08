@@ -23,8 +23,8 @@ const BRAND_LOGOS = [
 export default async function Home() {
   const homeVideos = await fetchMediaFromFolder('Home Page Video', 'video');
   const rawVideoUrl = homeVideos && homeVideos.length > 0 ? homeVideos[0].secure_url : null;
-  const videoUrl = rawVideoUrl ? rawVideoUrl.replace("/upload/", "/upload/q_auto:good,w_1920,vc_auto/") : null;
-  const posterUrl = rawVideoUrl ? rawVideoUrl.replace(/\.[^/.]+$/, ".jpg").replace("/upload/", "/upload/q_auto:good,w_1920,f_auto/") : undefined;
+  const videoUrl = rawVideoUrl ? rawVideoUrl.replace("/upload/", "/upload/f_auto,q_auto:good,w_1920,ac_none,vc_auto/") : null;
+  const posterUrl = rawVideoUrl ? rawVideoUrl.replace(/\.[^/.]+$/, ".jpg").replace("/upload/", "/upload/f_auto,q_auto:good,w_1920/") : undefined;
   const brandNames = BRAND_LOGOS.map(src => src.split('/').pop()?.split('.')[0]).filter(Boolean) as string[];
   const brandPromises = brandNames.map(name => fetchMediaFromFolder(`Brands/${name}`, 'all'));
   const brandResults = await Promise.all(brandPromises);
@@ -39,13 +39,33 @@ export default async function Home() {
       <Header />
       <section id="home" data-theme="dark" className="w-full h-screen bg-black">
         <video
+          id="home-hero-video"
           src={videoUrl || "/video_placeholder.mp4"}
           poster={posterUrl}
           autoPlay
           loop
           muted
           playsInline
+          preload="metadata"
           className={videoUrl ? "w-full h-full object-cover" : "w-full h-full object-contain p-24"}
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                var video = document.getElementById('home-hero-video');
+                if (!video) return;
+                var observer = new IntersectionObserver(function(entries) {
+                  if (entries[0].isIntersecting) {
+                    video.play().catch(function(){});
+                  } else {
+                    video.pause();
+                  }
+                });
+                observer.observe(video);
+              })();
+            `
+          }}
         />
       </section>
       <main className="grow">
