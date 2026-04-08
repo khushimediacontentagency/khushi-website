@@ -13,7 +13,7 @@ export default function PortfolioPage() {
               src="/portfolio/photosbanner.jpeg"
               alt="Photos Background"
               fill
-              className="object-cover object" 
+              className="object-cover object-[center_27%]" 
               priority
             />
           </div>
@@ -27,7 +27,7 @@ export default function PortfolioPage() {
               src="/portfolio/videobanner.jpeg"
               alt="Videos Background"
               fill
-              className="object-cover object"
+              className="object-cover object-[center_30%]"
             />
           </div>
           <div className="absolute inset-0 bg-black/50 group-hover:bg-black/20 transition-colors duration-500"></div>
@@ -40,7 +40,7 @@ export default function PortfolioPage() {
               src="/portfolio/ugcbanner.jpeg"
               alt="UGC Background"
               fill
-              className="object-cover object" 
+              className="object-cover object-[center_42%]" 
             />
           </div>
           <div className="absolute inset-0 bg-black/50 group-hover:bg-black/20 transition-colors duration-500"></div>
