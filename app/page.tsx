@@ -6,18 +6,21 @@ import { fetchMediaFromFolder } from './utils/cloudinary';
 export const revalidate = 3600;
 
 const BRAND_LOGOS = [
+  "/brandlogos/kishkin.jpg",
+  "/brandlogos/theunstoppabletour.jpeg",
+  "/brandlogos/sabinerooftopbar.png",
+  "/brandlogos/royallancaster.jpg",
+  "/brandlogos/whitehorse.jpg",
   "/brandlogos/afronaut.jpg",
   "/brandlogos/ballucci.png",
   "/brandlogos/caa.jpg",
   "/brandlogos/desifriction.jpg",
   "/brandlogos/gk.png",
   "/brandlogos/indianfusion.png",
-  "/brandlogos/sabinerooftopbar.png",
   "/brandlogos/tathaastu.jpg",
   "/brandlogos/thecoffeegen.jpg",
   "/brandlogos/reviveroom.jpg",
-  "/brandlogos/royallancaster.jpg",
-  "/brandlogos/whitehorse.jpg",
+
 ];
 
 export default async function Home() {
