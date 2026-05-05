@@ -36,10 +36,17 @@ const OptimizedVideo = ({ src }: { src: string }) => {
   );
 };
 
+const colorCache: Record<string, string> = {};
+
 const useCardBackgroundColor = (imageSrc: string) => {
-  const [color, setColor] = useState<string>('transparent');
+  const [color, setColor] = useState<string>(colorCache[imageSrc] || 'transparent');
 
   useEffect(() => {
+    if (colorCache[imageSrc]) {
+      setColor(colorCache[imageSrc]);
+      return;
+    }
+
     const img = new Image();
     img.src = imageSrc;
     img.crossOrigin = "Anonymous";
@@ -53,12 +60,14 @@ const useCardBackgroundColor = (imageSrc: string) => {
       ctx.drawImage(img, 0, 0, 10, 10);
       try {
         const [r, g, b, a] = ctx.getImageData(0, 0, 1, 1).data;
+        let finalColor = 'rgba(255, 255, 255, 0.03)';
         if (a > 0) {
-          setColor(`rgba(${r}, ${g}, ${b}, ${a / 255})`);
-        } else {
-          setColor('rgba(255, 255, 255, 0.03)');
+          finalColor = `rgba(${r}, ${g}, ${b}, ${a / 255})`;
         }
+        colorCache[imageSrc] = finalColor;
+        setColor(finalColor);
       } catch (e) {
+        colorCache[imageSrc] = 'rgba(255, 255, 255, 0.03)';
         setColor('rgba(255, 255, 255, 0.03)');
       }
     };
