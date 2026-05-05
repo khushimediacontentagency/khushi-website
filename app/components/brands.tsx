@@ -37,7 +37,7 @@ const OptimizedVideo = ({ src }: { src: string }) => {
 };
 
 const useCardBackgroundColor = (imageSrc: string) => {
-  const [color, setColor] = useState<string>('rgba(39, 39, 42, 1)');
+  const [color, setColor] = useState<string>('transparent');
 
   useEffect(() => {
     const img = new Image();
@@ -48,13 +48,19 @@ const useCardBackgroundColor = (imageSrc: string) => {
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
-      canvas.width = img.width;
-      canvas.height = img.height;
-      ctx.drawImage(img, 0, 0);
+      canvas.width = 10; 
+      canvas.height = 10;
+      ctx.drawImage(img, 0, 0, 10, 10);
       try {
         const [r, g, b, a] = ctx.getImageData(0, 0, 1, 1).data;
-        setColor(`rgba(${r}, ${g}, ${b}, ${a / 255})`);
-      } catch (e) {}
+        if (a > 0) {
+          setColor(`rgba(${r}, ${g}, ${b}, ${a / 255})`);
+        } else {
+          setColor('rgba(255, 255, 255, 0.03)');
+        }
+      } catch (e) {
+        setColor('rgba(255, 255, 255, 0.03)');
+      }
     };
   }, [imageSrc]);
 
@@ -65,7 +71,11 @@ const BrandCard = ({ src, onClick }: { src: string; onClick: () => void }) => {
   const bgColor = useCardBackgroundColor(src);
 
   return (
-    <div className="group relative overflow-hidden rounded-xl transition-transform duration-500 cursor-pointer flex flex-col w-[28vw] sm:w-[140px] md:w-[180px] lg:w-[220px] shrink-0 mx-2 md:mx-4" style={{ backgroundColor: bgColor }} onClick={onClick}>
+    <div 
+      className="group relative overflow-hidden rounded-xl transition-all duration-700 cursor-pointer flex flex-col w-[28vw] sm:w-[140px] md:w-[180px] lg:w-[220px] shrink-0 mx-2 md:mx-4" 
+      style={{ backgroundColor: bgColor }} 
+      onClick={onClick}
+    >
       <div className="relative aspect-square flex items-center justify-center p-4 sm:p-6 lg:p-8 rounded-xl overflow-hidden">
         <img src={src} alt="Brand Partner" className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-110" crossOrigin="anonymous" />
       </div>
@@ -110,11 +120,29 @@ export default function Brands({ brandLogos, brandImages }: { brandLogos: string
     next: brandImages[activeBrand][(selectedImage + 1) % brandImages[activeBrand].length]
   } : null;
 
-  const chunkArray = (arr: string[], size: number) => Array.from({ length: Math.ceil(arr.length / size) }, (_, i) => arr.slice(i * size, i * size + size));
-  const getMarqueeItems = (arr: string[]) => Array(4).fill(Array.from({ length: Math.ceil(10 / arr.length) }, () => arr).flat()).flat();
+  const distributeEvenly = (arr: string[], maxPerRow: number) => {
+    if (arr.length === 0) return [];
+    const numRows = Math.ceil(arr.length / maxPerRow);
+    const chunks = [];
+    let start = 0;
+    for (let i = 0; i < numRows; i++) {
+      const itemsInThisRow = Math.ceil((arr.length - start) / (numRows - i));
+      chunks.push(arr.slice(start, start + itemsInThisRow));
+      start += itemsInThisRow;
+    }
+    return chunks;
+  };
 
-  const desktopRows = chunkArray(brandLogos, 7);
-  const mobileRows = chunkArray(brandLogos, 3);
+  const getMarqueeItems = (arr: string[]) => {
+    let multiplied = [...arr];
+    while (multiplied.length < 10) {
+      multiplied = [...multiplied, ...arr];
+    }
+    return [...multiplied, ...multiplied, ...multiplied, ...multiplied];
+  };
+
+  const desktopRows = distributeEvenly(brandLogos, 7);
+  const mobileRows = distributeEvenly(brandLogos, 4);
 
   const renderMarqueeRow = (items: string[], direction: 'left' | 'right', keyPrefix: string) => (
     <div key={keyPrefix} className={`flex w-max ${direction === 'left' ? 'animate-marquee-left' : 'animate-marquee-right'}`}>
