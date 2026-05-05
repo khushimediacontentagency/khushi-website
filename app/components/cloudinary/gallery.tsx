@@ -49,7 +49,7 @@ const OptimizedVideo = ({ src }: { src: string }) => {
   }, []);
 
   return (
-    <div className="relative w-full h-full bg-zinc-900 overflow-hidden">
+    <div className="relative w-full h-full bg-zinc-900 overflow-hidden rounded-xl">
       {!isLoaded && (
         <img 
           src={posterUrl} 
@@ -147,13 +147,25 @@ export default function Gallery({ mediaGroups, title, backLink = "/portfolio", b
             </div>
           )}
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+          <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-6">
             {mediaGroups[activeFolder]?.map((media, index) => (
-              <div key={media.public_id} className="relative aspect-[9/16] cursor-zoom-in overflow-hidden rounded-xl group ring-1 ring-white/10 hover:ring-[#ff1267]/50 transition-all duration-500" onClick={() => openLightbox(activeFolder, index)}>
-                {media.resource_type === 'video' ? <OptimizedVideo src={media.secure_url} /> : <img src={media.secure_url.replace("/upload/", "/upload/q_auto,f_auto,w_400/")} loading="lazy" className="w-full h-full object-cover" />}
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-500 flex items-center justify-center">
-                  <div className="opacity-0 group-hover:opacity-100 scale-75 group-hover:scale-100 bg-white/10 backdrop-blur-md p-3 rounded-full border border-white/20">
-                    <ZoomIn className="text-white w-5 h-5" />
+              <div 
+                key={media.public_id} 
+                className="relative cursor-zoom-in overflow-hidden rounded-xl group ring-1 ring-white/10 hover:ring-[#ff1267]/50 hover:shadow-[0_0_40px_rgba(255,18,103,0.15)] transition-all duration-500 mb-6 break-inside-avoid bg-zinc-900" 
+                onClick={() => openLightbox(activeFolder, index)}
+              >
+                {media.resource_type === 'video' ? (
+                  <OptimizedVideo src={media.secure_url} />
+                ) : (
+                  <img 
+                    src={media.secure_url.replace("/upload/", "/upload/q_auto,f_auto,w_600/")} 
+                    loading="lazy" 
+                    className="w-full h-auto block transition-transform duration-700 group-hover:scale-105" 
+                  />
+                )}
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-500 flex items-center justify-center">
+                  <div className="opacity-0 group-hover:opacity-100 transition-all duration-500 scale-75 group-hover:scale-100 bg-white/10 backdrop-blur-md p-4 rounded-full border border-white/20">
+                    <ZoomIn className="text-white w-6 h-6" strokeWidth={1.5} />
                   </div>
                 </div>
               </div>
@@ -162,24 +174,38 @@ export default function Gallery({ mediaGroups, title, backLink = "/portfolio", b
         </div>
       )}
 
-      {selectedMedia && slider && (
-        <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/98 backdrop-blur-3xl animate-in fade-in duration-300">
+      {selectedMedia !== null && slider && activeFolder && (
+        <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/95 backdrop-blur-3xl animate-in fade-in duration-500">
           <div className="absolute top-0 left-0 w-full p-6 flex justify-between items-center z-[140]">
-            <span className="text-white/50 text-[10px] uppercase bg-black/40 px-4 py-2 rounded-full border border-white/5 tracking-[0.2em]">
-              {selectedMedia.folder} <span className="text-[#ff1267] mx-2">|</span> {selectedMedia.index + 1} / {mediaGroups[selectedMedia.folder].length}
+            <span className="text-white/50 text-[10px] md:text-xs tracking-[0.4em] uppercase bg-black/20 px-4 py-2 rounded-full backdrop-blur-md border border-white/5">
+              {activeFolder} <span className="text-[#ff1267] mx-2">|</span> {selectedMedia.index + 1} / {mediaGroups[activeFolder].length}
             </span>
-            <button onClick={closeLightbox} className="bg-white/5 hover:bg-[#ff1267] rounded-full p-3 text-white/70 hover:text-white transition-all">
-              <X size={24} />
+            <button
+              onClick={closeLightbox}
+              className="bg-white/5 hover:bg-[#ff1267] backdrop-blur-md border border-white/10 rounded-full p-3 text-white/70 hover:text-white transition-all hover:rotate-90 duration-300 shadow-lg"
+            >
+              <X size={24} strokeWidth={1.5} />
             </button>
           </div>
 
-          <div className="relative flex-1 w-full flex items-center justify-center py-12 px-4 md:px-32">
-            <div className="relative z-10 w-full h-full max-w-[90vw] max-h-[85vh] flex items-center justify-center">
-               {slider.current.resource_type === 'video' ? (
+          <div className="relative flex-1 w-full flex items-center justify-center overflow-hidden py-24 px-4 md:px-32">
+            <div
+              className="hidden lg:block absolute left-[-5%] w-[35%] opacity-20 blur-[4px] cursor-pointer transition-all hover:opacity-40 hover:blur-[2px] duration-700 transform scale-90"
+              onClick={() => navigate('prev')}
+            >
+              {slider.prev.resource_type === 'video' ? (
+                 <img src={slider.prev.secure_url.replace(/\.[^/.]+$/, ".jpg").replace("/upload/", "/upload/w_300,q_auto/")} className="w-full h-auto max-h-[50vh] object-contain rounded-xl" alt="prev" />
+              ) : (
+                 <img src={slider.prev.secure_url.replace("/upload/", "/upload/w_300,q_auto/")} className="w-full h-auto max-h-[50vh] object-contain rounded-xl" alt="prev" />
+              )}
+            </div>
+
+            <div className="relative z-10 flex items-center justify-center transition-all duration-700 max-w-full max-h-full">
+              {slider.current.resource_type === 'video' ? (
                  <video 
                    src={slider.current.secure_url.replace("/upload/", "/upload/q_auto,vc_auto/")} 
                    poster={slider.current.secure_url.replace(/\.[^/.]+$/, ".jpg").replace("/upload/", "/upload/q_auto,f_auto/")}
-                   className="max-w-full max-h-full rounded-lg shadow-[0_0_80px_rgba(255,18,103,0.15)] bg-black/20" 
+                   className="max-w-full max-h-[70vh] md:max-h-[80vh] rounded-lg shadow-[0_0_80px_rgba(255,18,103,0.15)] bg-black/20" 
                    controls 
                    autoPlay 
                    muted 
@@ -187,19 +213,47 @@ export default function Gallery({ mediaGroups, title, backLink = "/portfolio", b
                  />
                ) : (
                  <img 
-                   src={slider.current.secure_url.replace("/upload/", "/upload/q_auto,f_auto/")} 
-                   className="max-w-full max-h-full object-contain rounded-lg shadow-[0_0_80px_rgba(255,18,103,0.15)]" 
-                   alt="Selected media"
+                   src={slider.current.secure_url.replace("/upload/", "/upload/q_auto:best,f_auto/")} 
+                   className="max-w-full max-h-[70vh] md:max-h-[80vh] w-auto h-auto object-contain shadow-[0_0_80px_rgba(255,18,103,0.15)] rounded-lg" 
+                   alt="Selected visual"
                  />
                )}
             </div>
 
-            <button onClick={() => navigate('prev')} className="absolute left-4 md:left-10 bg-black/40 hover:bg-[#ff1267] rounded-full p-4 text-white/60 hover:text-white z-[140] transition-colors">
-              <ChevronLeft size={32} />
+            <div
+              className="hidden lg:block absolute right-[-5%] w-[35%] opacity-20 blur-[4px] cursor-pointer transition-all hover:opacity-40 hover:blur-[2px] duration-700 transform scale-90"
+              onClick={() => navigate('next')}
+            >
+              {slider.next.resource_type === 'video' ? (
+                 <img src={slider.next.secure_url.replace(/\.[^/.]+$/, ".jpg").replace("/upload/", "/upload/w_300,q_auto/")} className="w-full h-auto max-h-[50vh] object-contain rounded-xl" alt="next" />
+              ) : (
+                 <img src={slider.next.secure_url.replace("/upload/", "/upload/w_300,q_auto/")} className="w-full h-auto max-h-[50vh] object-contain rounded-xl" alt="next" />
+              )}
+            </div>
+
+            <button
+              onClick={() => navigate('prev')}
+              className="absolute left-4 md:left-10 bg-white/5 hover:bg-[#ff1267] backdrop-blur-md border border-white/10 rounded-full p-3 md:p-4 text-white/60 hover:text-white transition-all z-[140] hover:scale-110 shadow-lg"
+            >
+              <ChevronLeft size={32} strokeWidth={1.5} />
             </button>
-            <button onClick={() => navigate('next')} className="absolute right-4 md:right-10 bg-black/40 hover:bg-[#ff1267] rounded-full p-4 text-white/60 hover:text-white z-[140] transition-colors">
-              <ChevronRight size={32} />
+
+            <button
+              onClick={() => navigate('next')}
+              className="absolute right-4 md:right-10 bg-white/5 hover:bg-[#ff1267] backdrop-blur-md border border-white/10 rounded-full p-3 md:p-4 text-white/60 hover:text-white transition-all z-[140] hover:scale-110 shadow-lg"
+            >
+              <ChevronRight size={32} strokeWidth={1.5} />
             </button>
+          </div>
+
+          <div className="absolute bottom-8 md:bottom-10 flex gap-2 px-6 w-full max-w-full overflow-hidden items-center justify-center z-[140] flex-wrap">
+            {mediaGroups[activeFolder].map((_, i) => (
+              <div
+                key={i}
+                className={`transition-all duration-500 rounded-full ${i === selectedMedia.index ? 'w-10 h-1.5 bg-[#ff1267] shadow-[0_0_10px_rgba(255,18,103,0.5)]' : 'w-2 h-1.5 bg-white/20 hover:bg-white/40 cursor-pointer'}`}
+                onClick={() => setSelectedMedia({ folder: activeFolder, index: i })}
+              />
+            ))}
           </div>
         </div>
       )}

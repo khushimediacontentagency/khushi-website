@@ -13,6 +13,7 @@
     "@cloudinary/url-gen": "^1.22.0",
     "cloudinary": "^2.8.0",
     "clsx": "^2.1.1",
+    "framer-motion": "^12.38.0",
     "geist": "^1.5.1",
     "google-auth-library": "^10.5.0",
     "google-spreadsheet": "^5.0.2",

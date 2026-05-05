@@ -43,3 +43,26 @@ html {
     border-radius: 9999px;
   }
 }
+
+@keyframes marqueeLeft {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes marqueeRight {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0%); }
+}
+
+.animate-marquee-left {
+  animation: marqueeLeft 120s linear infinite;
+}
+
+.animate-marquee-right {
+  animation: marqueeRight 120s linear infinite;
+}
+
+.pause-on-hover:hover .animate-marquee-left,
+.pause-on-hover:hover .animate-marquee-right {
+  animation-play-state: paused;
+}

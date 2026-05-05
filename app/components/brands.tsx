@@ -24,32 +24,14 @@ const OptimizedVideo = ({ src }: { src: string }) => {
       { rootMargin: '400px 0px' } 
     );
 
-    if (videoRef.current) {
-      observer.observe(videoRef.current);
-    }
-
+    if (videoRef.current) observer.observe(videoRef.current);
     return () => observer.disconnect();
   }, []);
 
   return (
     <div className="relative w-full h-full bg-zinc-900 overflow-hidden rounded-xl">
-      {!isLoaded && (
-        <img 
-          src={posterUrl} 
-          className="absolute inset-0 w-full h-full object-cover blur-md scale-110 transition-opacity duration-500" 
-          alt="Loading..."
-          loading="lazy"
-        />
-      )}
-      <video 
-        ref={videoRef}
-        src={isInView ? gridVideoUrl : undefined} 
-        className={`w-full h-full object-cover transition-opacity duration-700 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
-        loop
-        muted
-        playsInline
-        onCanPlay={() => setIsLoaded(true)}
-      />
+      {!isLoaded && <img src={posterUrl} className="absolute inset-0 w-full h-full object-cover blur-md scale-110 transition-opacity duration-500" alt="Loading..." loading="lazy" />}
+      <video ref={videoRef} src={isInView ? gridVideoUrl : undefined} className={`w-full h-full object-cover transition-opacity duration-700 ${isLoaded ? 'opacity-100' : 'opacity-0'}`} loop muted playsInline onCanPlay={() => setIsLoaded(true)} />
     </div>
   );
 };
@@ -66,15 +48,12 @@ const useCardBackgroundColor = (imageSrc: string) => {
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
-      canvas.width = 50;
-      canvas.height = 50;
-      ctx.drawImage(img, 0, 0, 50, 50);
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.drawImage(img, 0, 0);
       try {
-        const frameData = ctx.getImageData(0, 0, 1, 1).data;
-        const [r, g, b, a] = frameData;
-        if (a > 200) {
-          setColor(`rgb(${r}, ${g}, ${b})`);
-        }
+        const [r, g, b, a] = ctx.getImageData(0, 0, 1, 1).data;
+        setColor(`rgba(${r}, ${g}, ${b}, ${a / 255})`);
       } catch (e) {}
     };
   }, [imageSrc]);
@@ -82,27 +61,16 @@ const useCardBackgroundColor = (imageSrc: string) => {
   return color;
 };
 
-const BrandCard = ({ src, index, onClick }: { src: string; index: number; onClick: () => void }) => {
+const BrandCard = ({ src, onClick }: { src: string; onClick: () => void }) => {
   const bgColor = useCardBackgroundColor(src);
 
   return (
-    <div
-      className="group relative overflow-hidden rounded-xl transition-all duration-500 hover:scale-[1.02] hover:shadow-[0_0_40px_rgba(255,18,103,0.15)] ring-1 ring-white/5 hover:ring-[#ff1267]/50 cursor-pointer flex flex-col"
-      style={{ backgroundColor: bgColor }}
-      onClick={onClick}
-    >
-      <div className="relative aspect-square flex items-center justify-center p-6 lg:pb-12 rounded-xl overflow-hidden">
-        <img
-          src={src}
-          alt={`Brand Partner ${index + 1}`}
-          className="w-full h-full object-contain transition-all duration-500 group-hover:scale-110 lg:group-hover:-translate-y-2 drop-shadow-lg"
-          crossOrigin="anonymous"
-        />
+    <div className="group relative overflow-hidden rounded-xl transition-transform duration-500 cursor-pointer flex flex-col w-[28vw] sm:w-[140px] md:w-[180px] lg:w-[220px] shrink-0 mx-2 md:mx-4" style={{ backgroundColor: bgColor }} onClick={onClick}>
+      <div className="relative aspect-square flex items-center justify-center p-4 sm:p-6 lg:p-8 rounded-xl overflow-hidden">
+        <img src={src} alt="Brand Partner" className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-110" crossOrigin="anonymous" />
       </div>
-      <div className="absolute bottom-0 left-0 w-full p-4 hidden lg:flex justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent pointer-events-none">
-        <span className="text-white tracking-[0.2em] uppercase text-xs font-medium border border-[#ff1267] px-4 py-2 rounded-full bg-[#ff1267]/20 backdrop-blur-sm shadow-lg">
-          View Work
-        </span>
+      <div className="absolute bottom-0 left-0 w-full p-4 flex justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent pointer-events-none">
+        <span className="text-white tracking-[0.2em] uppercase text-[10px] md:text-xs font-medium border border-[#ff1267] px-3 py-1.5 md:px-4 md:py-2 rounded-full bg-[#ff1267]/20 backdrop-blur-sm">View Work</span>
       </div>
     </div>
   );
@@ -116,21 +84,13 @@ export default function Brands({ brandLogos, brandImages }: { brandLogos: string
   const closeLightbox = () => setSelectedImage(null);
 
   useEffect(() => {
-    if (activeBrand) {
-      document.getElementById('brands')?.scrollIntoView({ behavior: 'smooth' });
-    }
+    if (activeBrand) document.getElementById('brands')?.scrollIntoView({ behavior: 'smooth' });
   }, [activeBrand]);
 
   const navigate = useCallback((direction: 'prev' | 'next') => {
-    if (selectedImage === null || !activeBrand) return;
-    const currentImages = brandImages[activeBrand];
-    if (!currentImages || currentImages.length === 0) return;
-
-    let newIndex = direction === 'next' ? selectedImage + 1 : selectedImage - 1;
-    if (newIndex >= currentImages.length) newIndex = 0;
-    if (newIndex < 0) newIndex = currentImages.length - 1;
-
-    setSelectedImage(newIndex);
+    if (selectedImage === null || !activeBrand || !brandImages[activeBrand]?.length) return;
+    const len = brandImages[activeBrand].length;
+    setSelectedImage((direction === 'next' ? selectedImage + 1 : selectedImage - 1 + len) % len);
   }, [selectedImage, activeBrand, brandImages]);
 
   useEffect(() => {
@@ -144,92 +104,74 @@ export default function Brands({ brandLogos, brandImages }: { brandLogos: string
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedImage, navigate]);
 
-  const getSliderImages = () => {
-    if (selectedImage === null || !activeBrand) return null;
-    const list = brandImages[activeBrand];
-    if (!list || list.length === 0) return null;
-    const prev = list[(selectedImage - 1 + list.length) % list.length];
-    const current = list[selectedImage];
-    const next = list[(selectedImage + 1) % list.length];
-    return { prev, current, next };
-  };
+  const slider = selectedImage !== null && activeBrand && brandImages[activeBrand]?.length ? {
+    current: brandImages[activeBrand][selectedImage],
+    prev: brandImages[activeBrand][(selectedImage - 1 + brandImages[activeBrand].length) % brandImages[activeBrand].length],
+    next: brandImages[activeBrand][(selectedImage + 1) % brandImages[activeBrand].length]
+  } : null;
 
-  const slider = getSliderImages();
+  const chunkArray = (arr: string[], size: number) => Array.from({ length: Math.ceil(arr.length / size) }, (_, i) => arr.slice(i * size, i * size + size));
+  const getMarqueeItems = (arr: string[]) => Array(4).fill(Array.from({ length: Math.ceil(10 / arr.length) }, () => arr).flat()).flat();
+
+  const desktopRows = chunkArray(brandLogos, 7);
+  const mobileRows = chunkArray(brandLogos, 3);
+
+  const renderMarqueeRow = (items: string[], direction: 'left' | 'right', keyPrefix: string) => (
+    <div key={keyPrefix} className={`flex w-max ${direction === 'left' ? 'animate-marquee-left' : 'animate-marquee-right'}`}>
+      <div className="flex whitespace-nowrap">
+        {getMarqueeItems(items).map((src, index) => (
+          <BrandCard key={`${keyPrefix}-${index}`} src={src} onClick={() => setActiveBrand(src.split('/').pop()?.split('.')[0] || '')} />
+        ))}
+      </div>
+    </div>
+  );
 
   return (
-    <section id="brands" className="relative pt-32 pb-24 bg-zinc-950 min-h-screen overflow-hidden scroll-mt-20">
+    <section id="brands" className="relative pt-20 pb-20 bg-zinc-950 min-h-screen overflow-hidden scroll-mt-20">
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#ff1267]/10 rounded-full blur-[100px] pointer-events-none" />
       <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-white/5 rounded-full blur-[80px] pointer-events-none" />
 
-      <div className="container mx-auto px-4 relative z-10">
+      <div className="relative z-10 w-full">
         {!activeBrand ? (
           <>
-            <div className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-bold mb-6 tracking-tight text-white">
-                Brands We <span className="text-[#ff1267]">Worked With</span>
-              </h2>
-              <p className="text-zinc-400 max-w-2xl mx-auto text-lg leading-relaxed">
-                We collaborate with industry leaders and emerging businesses to create impactful visual narratives.
-              </p>
+            <div className="container mx-auto px-4 text-center mb-16 animate-in fade-in slide-in-from-bottom-4 duration-700">
+              <div className="flex items-center justify-center gap-4 mb-6">
+                <div className="h-[1px] w-8 bg-[#ff1267]"></div>
+                <span className="text-[#ff1267] uppercase tracking-[0.3em] text-xs font-semibold">Our Partners</span>
+                <div className="h-[1px] w-8 bg-[#ff1267]"></div>
+              </div>
+              <h2 className="text-5xl md:text-6xl font-bold mb-6 tracking-tight text-white"><span className="text-[#ff1267]">Brands</span> We Worked With</h2>
+              <p className="text-zinc-400 max-w-2xl mx-auto text-lg md:text-xl font-light leading-relaxed">We collaborate with industry leaders and emerging businesses to create impactful visual narratives.</p>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 max-w-7xl mx-auto">
-              {brandLogos.map((src, index) => {
-                const brandName = src.split('/').pop()?.split('.')[0] || '';
-                return (
-                  <BrandCard
-                    key={index}
-                    src={src}
-                    index={index}
-                    onClick={() => setActiveBrand(brandName)}
-                  />
-                );
-              })}
+            <div className="hidden md:flex flex-col gap-6 w-full overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)] pause-on-hover">
+              {desktopRows.map((row, index) => renderMarqueeRow(row, index % 2 === 0 ? 'left' : 'right', `desktop-row-${index}`))}
+            </div>
+
+            <div className="flex md:hidden flex-col gap-4 w-full overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)] pause-on-hover">
+              {mobileRows.map((row, index) => renderMarqueeRow(row, index % 2 === 0 ? 'left' : 'right', `mobile-row-${index}`))}
             </div>
           </>
         ) : (
-          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 max-w-7xl mx-auto">
-            <div className="flex flex-col gap-4 mb-6">
-              <div className="self-start">
-                <button
-                  onClick={() => setActiveBrand(null)}
-                  className="group flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/5 hover:bg-[#ff1267]/10 text-white/60 hover:text-[#ff1267] transition-all uppercase tracking-[0.2em] text-xs font-medium backdrop-blur-md border border-white/5 hover:border-[#ff1267]/30"
-                >
-                  <ChevronLeft size={16} className="transition-transform duration-300 group-hover:-translate-x-1" />
-                  Back to Brands
-                </button>
-              </div>
-              <h2 className="text-3xl font-light tracking-[0.2em] uppercase border-l-2 border-[#ff1267] pl-5 text-white drop-shadow-md">
-                {activeBrand}
-              </h2>
+          <div className="container mx-auto px-4 animate-in fade-in slide-in-from-bottom-8 duration-700 max-w-7xl">
+            <div className="flex flex-col items-center text-center gap-6 mb-16">
+              <button onClick={() => setActiveBrand(null)} className="group flex items-center gap-2 px-6 py-2 rounded-full text-zinc-400 hover:text-[#ff1267] transition-colors uppercase tracking-[0.2em] text-xs font-medium">
+                <ChevronLeft size={16} className="transition-transform duration-300 group-hover:-translate-x-1" />
+                Back to Brands
+              </button>
+              <h2 className="text-4xl md:text-6xl font-bold tracking-tight text-white uppercase">{activeBrand}</h2>
+              <div className="h-[2px] w-24 bg-[#ff1267]"></div>
             </div>
 
             {!brandImages[activeBrand] || brandImages[activeBrand].length === 0 ? (
-              <div className="flex items-center justify-center py-20 text-white/40 tracking-[0.2em] uppercase text-sm">
-                No images or videos available for this brand
-              </div>
+              <div className="flex items-center justify-center py-32 text-zinc-600 tracking-[0.2em] uppercase text-sm font-light">No visual assets available</div>
             ) : (
               <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-6">
                 {brandImages[activeBrand].map((media: any, index: number) => (
-                  <div
-                    key={media.public_id}
-                    className="relative cursor-zoom-in overflow-hidden rounded-xl group ring-1 ring-white/10 hover:ring-[#ff1267]/50 hover:shadow-[0_0_40px_rgba(255,18,103,0.15)] transition-all duration-500 mb-6 break-inside-avoid"
-                    onClick={() => openLightbox(index)}
-                  >
-                    {media.resource_type === 'video' ? (
-                      <OptimizedVideo src={media.secure_url} />
-                    ) : (
-                      <img
-                        src={media.secure_url.replace("/upload/", "/upload/q_auto,f_auto,w_500/")}
-                        alt={`${activeBrand} photo ${index}`}
-                        className="w-full h-auto block transition-transform duration-700 group-hover:scale-105"
-                        loading="lazy"
-                      />
-                    )}
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-500 flex items-center justify-center">
-                      <div className="opacity-0 group-hover:opacity-100 transition-all duration-500 scale-75 group-hover:scale-100 bg-white/10 backdrop-blur-md p-4 rounded-full border border-white/20">
-                        <ZoomIn className="text-white w-6 h-6" strokeWidth={1.5} />
-                      </div>
+                  <div key={media.public_id} className="relative cursor-zoom-in overflow-hidden rounded-xl group bg-zinc-900 transition-transform duration-500 mb-6 break-inside-avoid animate-in fade-in zoom-in-95" style={{ animationDelay: `${index * 50}ms` }} onClick={() => openLightbox(index)}>
+                    {media.resource_type === 'video' ? <OptimizedVideo src={media.secure_url} /> : <img src={media.secure_url.replace("/upload/", "/upload/q_auto,f_auto,w_600/")} alt={`${activeBrand} photo ${index}`} className="w-full h-auto block transition-transform duration-700 group-hover:scale-105" loading="lazy" />}
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-500 flex items-center justify-center">
+                      <div className="opacity-0 group-hover:opacity-100 transition-all duration-500 scale-75 group-hover:scale-100"><ZoomIn className="text-white w-8 h-8" strokeWidth={1.5} /></div>
                     </div>
                   </div>
                 ))}
@@ -240,85 +182,27 @@ export default function Brands({ brandLogos, brandImages }: { brandLogos: string
       </div>
 
       {selectedImage !== null && slider && activeBrand && (
-        <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/95 backdrop-blur-3xl animate-in fade-in duration-500">
+        <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-zinc-950/95 backdrop-blur-xl animate-in fade-in duration-300">
           <div className="absolute top-0 left-0 w-full p-6 flex justify-between items-center z-[140]">
-            <span className="text-white/50 text-[10px] md:text-xs tracking-[0.4em] uppercase bg-black/20 px-4 py-2 rounded-full backdrop-blur-md border border-white/5">
-              {activeBrand} <span className="text-[#ff1267] mx-2">|</span> {selectedImage + 1} / {brandImages[activeBrand].length}
-            </span>
-            <button
-              onClick={closeLightbox}
-              className="bg-white/5 hover:bg-[#ff1267] backdrop-blur-md border border-white/10 rounded-full p-3 text-white/70 hover:text-white transition-all hover:rotate-90 duration-300 shadow-lg"
-            >
-              <X size={24} strokeWidth={1.5} />
-            </button>
+            <span className="text-zinc-400 text-xs md:text-sm tracking-[0.3em] uppercase font-medium">{activeBrand} <span className="text-[#ff1267] mx-3">/</span> {selectedImage + 1} OF {brandImages[activeBrand].length}</span>
+            <button onClick={closeLightbox} className="text-zinc-400 hover:text-white transition-colors p-2"><X size={28} strokeWidth={1.5} /></button>
           </div>
 
-          <div className="relative flex-1 w-full flex items-center justify-center overflow-hidden py-24 px-4 md:px-32">
-            <div
-              className="hidden lg:block absolute left-[-5%] w-[35%] opacity-20 blur-[4px] cursor-pointer transition-all hover:opacity-40 hover:blur-[2px] duration-700 transform scale-90"
-              onClick={() => navigate('prev')}
-            >
-              {slider.prev.resource_type === 'video' ? (
-                 <img src={slider.prev.secure_url.replace(/\.[^/.]+$/, ".jpg").replace("/upload/", "/upload/w_300,q_auto/")} className="w-full h-auto max-h-[50vh] object-contain rounded-xl" alt="prev" />
-              ) : (
-                 <img src={slider.prev.secure_url.replace("/upload/", "/upload/w_300,q_auto/")} className="w-full h-auto max-h-[50vh] object-contain rounded-xl" alt="prev" />
-              )}
+          <div className="relative flex-1 w-full flex items-center justify-center overflow-hidden py-20 px-4 md:px-24">
+            <div className="hidden lg:block absolute left-[-10%] w-[35%] opacity-20 cursor-pointer transition-all hover:opacity-40 duration-500 transform scale-90" onClick={() => navigate('prev')}>
+              {slider.prev.resource_type === 'video' ? ( <img src={slider.prev.secure_url.replace(/\.[^/.]+$/, ".jpg").replace("/upload/", "/upload/w_400,q_auto/")} className="w-full h-auto max-h-[50vh] object-contain rounded-xl" alt="prev" /> ) : ( <img src={slider.prev.secure_url.replace("/upload/", "/upload/w_400,q_auto/")} className="w-full h-auto max-h-[50vh] object-contain rounded-xl" alt="prev" /> )}
             </div>
 
-            <div className="relative z-10 flex items-center justify-center transition-all duration-700 max-w-full max-h-full">
-              {slider.current.resource_type === 'video' ? (
-                 <video 
-                   src={slider.current.secure_url.replace("/upload/", "/upload/q_auto,vc_auto/")} 
-                   poster={slider.current.secure_url.replace(/\.[^/.]+$/, ".jpg").replace("/upload/", "/upload/q_auto,f_auto/")}
-                   className="max-w-full max-h-[70vh] md:max-h-[80vh] rounded-lg shadow-[0_0_80px_rgba(255,18,103,0.15)] bg-black/20" 
-                   controls 
-                   autoPlay 
-                   muted 
-                   playsInline 
-                 />
-               ) : (
-                 <img 
-                   src={slider.current.secure_url.replace("/upload/", "/upload/q_auto:best,f_auto/")} 
-                   className="max-w-full max-h-[70vh] md:max-h-[80vh] w-auto h-auto object-contain shadow-[0_0_80px_rgba(255,18,103,0.15)] rounded-lg" 
-                   alt="Selected visual"
-                 />
-               )}
+            <div key={selectedImage} className="relative z-10 flex items-center justify-center max-w-full max-h-full animate-in zoom-in-95 duration-300">
+              {slider.current.resource_type === 'video' ? ( <video src={slider.current.secure_url.replace("/upload/", "/upload/q_auto,vc_auto/")} poster={slider.current.secure_url.replace(/\.[^/.]+$/, ".jpg").replace("/upload/", "/upload/q_auto,f_auto/")} className="max-w-full max-h-[75vh] md:max-h-[85vh] rounded-xl bg-zinc-900" controls autoPlay muted playsInline /> ) : ( <img src={slider.current.secure_url.replace("/upload/", "/upload/q_auto:best,f_auto/")} className="max-w-full max-h-[75vh] md:max-h-[85vh] w-auto h-auto object-contain rounded-xl" alt="Selected visual" /> )}
             </div>
 
-            <div
-              className="hidden lg:block absolute right-[-5%] w-[35%] opacity-20 blur-[4px] cursor-pointer transition-all hover:opacity-40 hover:blur-[2px] duration-700 transform scale-90"
-              onClick={() => navigate('next')}
-            >
-              {slider.next.resource_type === 'video' ? (
-                 <img src={slider.next.secure_url.replace(/\.[^/.]+$/, ".jpg").replace("/upload/", "/upload/w_300,q_auto/")} className="w-full h-auto max-h-[50vh] object-contain rounded-xl" alt="next" />
-              ) : (
-                 <img src={slider.next.secure_url.replace("/upload/", "/upload/w_300,q_auto/")} className="w-full h-auto max-h-[50vh] object-contain rounded-xl" alt="next" />
-              )}
+            <div className="hidden lg:block absolute right-[-10%] w-[35%] opacity-20 cursor-pointer transition-all hover:opacity-40 duration-500 transform scale-90" onClick={() => navigate('next')}>
+              {slider.next.resource_type === 'video' ? ( <img src={slider.next.secure_url.replace(/\.[^/.]+$/, ".jpg").replace("/upload/", "/upload/w_400,q_auto/")} className="w-full h-auto max-h-[50vh] object-contain rounded-xl" alt="next" /> ) : ( <img src={slider.next.secure_url.replace("/upload/", "/upload/w_400,q_auto/")} className="w-full h-auto max-h-[50vh] object-contain rounded-xl" alt="next" /> )}
             </div>
 
-            <button
-              onClick={() => navigate('prev')}
-              className="absolute left-4 md:left-10 bg-white/5 hover:bg-[#ff1267] backdrop-blur-md border border-white/10 rounded-full p-3 md:p-4 text-white/60 hover:text-white transition-all z-[140] hover:scale-110 shadow-lg"
-            >
-              <ChevronLeft size={32} strokeWidth={1.5} />
-            </button>
-
-            <button
-              onClick={() => navigate('next')}
-              className="absolute right-4 md:right-10 bg-white/5 hover:bg-[#ff1267] backdrop-blur-md border border-white/10 rounded-full p-3 md:p-4 text-white/60 hover:text-white transition-all z-[140] hover:scale-110 shadow-lg"
-            >
-              <ChevronRight size={32} strokeWidth={1.5} />
-            </button>
-          </div>
-
-          <div className="absolute bottom-8 md:bottom-10 flex gap-2 px-6 max-w-full overflow-hidden items-center z-[140]">
-            {brandImages[activeBrand].map((_, i) => (
-              <div
-                key={i}
-                className={`transition-all duration-500 rounded-full ${i === selectedImage ? 'w-10 h-1.5 bg-[#ff1267] shadow-[0_0_10px_rgba(255,18,103,0.5)]' : 'w-2 h-1.5 bg-white/20 hover:bg-white/40 cursor-pointer'}`}
-                onClick={() => setSelectedImage(i)}
-              />
-            ))}
+            <button onClick={() => navigate('prev')} className="absolute left-4 md:left-8 text-zinc-400 hover:text-white transition-colors z-[140] p-2"><ChevronLeft size={40} strokeWidth={1} /></button>
+            <button onClick={() => navigate('next')} className="absolute right-4 md:right-8 text-zinc-400 hover:text-white transition-colors z-[140] p-2"><ChevronRight size={40} strokeWidth={1} /></button>
           </div>
         </div>
       )}
